@@ -17,9 +17,6 @@ class Load {
         try {
             glob.map((filePath) => {
                 const { name } = path.parse(filePath);
-                console.log(name);
-                // const service = require(serviceFile).default;
-                // service.prototype.ctx = ctx;
                 object[name] = filePath;
             });
         }
@@ -29,8 +26,17 @@ class Load {
         ctx[key] = new Proxy(object, {
             get: function (target, name) {
                 if (typeof target[name] === 'string') {
-                    const constructor = require(target[name]);
-                    return new constructor(ctx);
+                    const constructor = require(target[name]).default || require(target[name]);
+                    constructor.prototype.ctx = ctx;
+                    // constructor.prototype.constructor
+                    // if ( typeof constructor.constructor !== 'function') {
+                    //     constructor.constructor = function() {}
+                    // }
+                    const entry = new constructor(ctx);
+                    if (entry.init) {
+                        entry.init = entry.init.bind(entry);
+                    }
+                    return entry;
                 }
                 return target[name];
             }

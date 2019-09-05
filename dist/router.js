@@ -10,23 +10,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 class Routers {
     constructor() {
+        this.handlers = {
+            a: 'd'
+        };
     }
     /**
      *
      * 注册
      * @memberof Routers
      */
-    register() {
+    register(path, handler) {
+        this.handlers[path] = handler;
     }
     /**
      * slowly middlerware
      * @memberof Routers
      */
     routes() {
+        const _this = this;
         return function (ctx, next) {
             return __awaiter(this, void 0, void 0, function* () {
                 yield next();
-                console.log(ctx.service.test.aa);
+                const firstParam = ctx.argv.params[0];
+                for (const route in _this.handlers) {
+                    //Todo 判断route
+                    if (route.split(' ').indexOf(firstParam) > -1) {
+                        _this.handlers[route](ctx);
+                        break;
+                    }
+                }
             });
         };
     }

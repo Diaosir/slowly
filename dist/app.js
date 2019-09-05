@@ -5,6 +5,9 @@ const argv_1 = require("./core/argv");
 const load_1 = require("./core/load");
 const compose_1 = require("./utils/compose");
 const router_1 = require("./router");
+require('babel-register')({
+    plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
+});
 const router = new router_1.default();
 class App {
     constructor(argv) {

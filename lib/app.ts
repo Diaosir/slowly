@@ -5,6 +5,12 @@ import { AppMiddleware } from './interface/type'
 import * as is from './utils/is'
 import { compose } from './utils/compose'
 import Router from './router';
+require('babel-register')
+(
+  {
+    plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
+  }
+)
 const router = new Router()
 class App {
   public argv: any;
@@ -52,6 +58,5 @@ class App {
   }
   help() {
   }
-
 }
 export default App;

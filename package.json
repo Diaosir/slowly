@@ -9,7 +9,7 @@
     "type": "git"
   },
   "bin": {
-    "slowly": "./test/bin/index.js"
+    "ironman": "./test/bin/index.js"
   },
   "license": "ISC",
   "devDependencies": {
@@ -21,6 +21,9 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
+    "@babel/register": "^7.5.5",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "babel-register": "^6.26.0",
     "glob": "^7.1.4",
     "typescript-tslint-plugin": "^0.5.4"
   }
