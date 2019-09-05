@@ -1,0 +1,27 @@
+{
+  "name": "slowly",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "jest  --watchAll --coverage"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "bin": {
+    "slowly": "./test/bin/index.js"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "@types/node": "^12.6.8",
+    "babel-jest": "^24.8.0",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "glob": "^7.1.4",
+    "typescript-tslint-plugin": "^0.5.4"
+  }
+}
