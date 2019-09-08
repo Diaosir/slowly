@@ -9,7 +9,7 @@
     "type": "git"
   },
   "bin": {
-    "ironman": "./test/bin/index.js"
+    "test-slowly": "./test/bin/index.js"
   },
   "license": "ISC",
   "devDependencies": {

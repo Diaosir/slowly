@@ -1,9 +1,8 @@
 import { ArgvInterface } from '../interface/type'
+import { OPTION_ONE_REG, OPTION_TWO_REG } from '../utils/contant'
 const path = require('path')
 import * as is from '../utils/is'
-const ONE_REG = /^-([a-zA-Z]+)$/
-const TWO_REG = /^--([a-zA-Z]+)(=(\w+))?$/
-
+import { parseQueryValue } from '../utils/parsing'
 export default class Argv implements ArgvInterface {
   public originalArgv: Array<string>;
   public params: Array<any>; 
@@ -35,12 +34,13 @@ export default class Argv implements ArgvInterface {
    * @param name 
    * @param value 
    */
-  setObject(object, name: string, value: any) {
+  setObject(object, name: string, queryValue: any) {
+    const value = parseQueryValue(queryValue)
     if (object[name] === undefined) {
       object[name] = value;
     } else if (is.isArray(object[name])) {
       object[name].push(value);
-    } else if (is.isString(object[name])) {
+    } else {
       object[name] = [
         object[name],
         value
@@ -55,15 +55,15 @@ export default class Argv implements ArgvInterface {
   generateParams() {
     const effectiveArgv = this.originalArgv.slice(2);
     for(let i = 0; i < effectiveArgv.length; ){
-      const matchOne_ = effectiveArgv[i].match(ONE_REG);
-      const matchTow_ = effectiveArgv[i].match(TWO_REG);
+      const matchOne_ = effectiveArgv[i].match(OPTION_ONE_REG);
+      const matchTow_ = effectiveArgv[i].match(OPTION_TWO_REG);
       if (matchOne_){
         if (effectiveArgv[i+1] === undefined) {
           this.setObject(this.query, matchOne_[1], true);
           break;
         }
         //如果下一个参数是带有'-' 或者 '--' 符合的则给上一个设置为true
-        if (effectiveArgv[i+1].match(ONE_REG) || effectiveArgv[i+1].match(TWO_REG)) {
+        if (effectiveArgv[i+1].match(OPTION_TWO_REG) || effectiveArgv[i+1].match(OPTION_TWO_REG)) {
           this.setObject(this.query, matchOne_[1], true);
           i++;
           continue;

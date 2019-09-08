@@ -5,12 +5,7 @@ import { AppMiddleware } from './interface/type'
 import * as is from './utils/is'
 import { compose } from './utils/compose'
 import Router from './router';
-require('babel-register')
-(
-  {
-    plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
-  }
-)
+import * as defaultMiddlewares from './middlewares/default';
 const router = new Router()
 class App {
   public argv: any;
@@ -21,17 +16,28 @@ class App {
   public allCommands: any;
   public baseLoad: any;
   public middlewares: Array<AppMiddleware> = [];
-  constructor(argv?: Array<string>) {
+  constructor(options: any = {}) {
     // this.argv = require('yargs')
     // .usage('Usage: $0 -w [num] -h [num]')
     // .demandOption(['w','h'])
     // .argv;
-    this.argv = new Argv(argv)
+    if (options.es6) {
+      require('babel-register')
+      (
+        {
+          plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
+        }
+      )
+    }
+    this.argv = new Argv();
     this.cwd = process.cwd();
     //Todo
     this.config = {};
     this.ctx = this.createContext();
     this.baseLoad = new Load(this.ctx);
+    Object.keys(defaultMiddlewares).forEach(name => {
+      this.use(defaultMiddlewares[name]);
+    })
     this.use(router.routes())
     setTimeout(() => {
       this.callback();

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const contant_1 = require("../utils/contant");
 const path = require('path');
 const is = require("../utils/is");
-const ONE_REG = /^-([a-zA-Z]+)$/;
-const TWO_REG = /^--([a-zA-Z]+)(=(\w+))?$/;
+const parsing_1 = require("../utils/parsing");
 class Argv {
     constructor(argv) {
         this.originalArgv = argv || process.argv;
@@ -29,14 +29,15 @@ class Argv {
      * @param name
      * @param value
      */
-    setObject(object, name, value) {
+    setObject(object, name, queryValue) {
+        const value = parsing_1.parseQueryValue(queryValue);
         if (object[name] === undefined) {
             object[name] = value;
         }
         else if (is.isArray(object[name])) {
             object[name].push(value);
         }
-        else if (is.isString(object[name])) {
+        else {
             object[name] = [
                 object[name],
                 value
@@ -51,15 +52,15 @@ class Argv {
     generateParams() {
         const effectiveArgv = this.originalArgv.slice(2);
         for (let i = 0; i < effectiveArgv.length;) {
-            const matchOne_ = effectiveArgv[i].match(ONE_REG);
-            const matchTow_ = effectiveArgv[i].match(TWO_REG);
+            const matchOne_ = effectiveArgv[i].match(contant_1.OPTION_ONE_REG);
+            const matchTow_ = effectiveArgv[i].match(contant_1.OPTION_TWO_REG);
             if (matchOne_) {
                 if (effectiveArgv[i + 1] === undefined) {
                     this.setObject(this.query, matchOne_[1], true);
                     break;
                 }
                 //如果下一个参数是带有'-' 或者 '--' 符合的则给上一个设置为true
-                if (effectiveArgv[i + 1].match(ONE_REG) || effectiveArgv[i + 1].match(TWO_REG)) {
+                if (effectiveArgv[i + 1].match(contant_1.OPTION_TWO_REG) || effectiveArgv[i + 1].match(contant_1.OPTION_TWO_REG)) {
                     this.setObject(this.query, matchOne_[1], true);
                     i++;
                     continue;

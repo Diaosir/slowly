@@ -3,5 +3,6 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "jsx": "react"
-  }
+  },
+  "moduleFileExtensions": ["js", "json", "jsx", "ts", "tsx", "node"]
 }
