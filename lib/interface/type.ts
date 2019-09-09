@@ -13,6 +13,7 @@ export interface ContextInterface {
   routes: {
     [key: string]: RouteConfigInterfase
   }
+  version: string
 }
 export interface ArgvInterface {
   originalArgv: Array<string>;
@@ -31,6 +32,7 @@ export interface RouteOptionInterface {
   summary_name?: string;
   type?: string;
   search?: string;
+  description?: string;
 }
 export enum RouteOptionRuleEnum {
   NORMAL,
@@ -46,6 +48,13 @@ export interface RouteConfigInterfase {
   config: {
     onHelp?: Function;
     usage: string | Function;
-    description: string
+    description: string;
+    optionConfig: {
+      [key: string]: any
+    }
   }
+}
+export interface AppOptionInterface {
+  es6?: boolean;
+  version: string; 
 }

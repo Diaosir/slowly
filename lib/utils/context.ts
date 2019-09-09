@@ -10,7 +10,8 @@ export default class Context implements ContextInterface {
   public cwd: string;
   public routes: {
     [key: string]: RouteConfigInterfase
-  }
+  } = {}
+  public version: string = '1.0.0';
   /**
    *Creates an instance of Context.
    * @param {*} app 

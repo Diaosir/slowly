@@ -1,7 +1,8 @@
 import { compose } from './utils/compose'
 import { ContextInterface, RouteOptionInterface, RouteOptionRuleEnum, RouteConfigInterfase} from './interface/type'
-import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_ENV_REG} from './utils/contant'
+import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_ENV_REG, EMPTY_COMMAND_NAME} from './utils/contant'
 import * as is from './utils/is'
+import { generateOptionLine } from './utils/log'
 export default class Routers {
   public path: any;
   public middlewares: any;
@@ -10,17 +11,22 @@ export default class Routers {
   } = {};
   constructor() {
   }
-  public static parseRoute(route: string): {
+  public static parseRoute(route: string, config: { [key: string]: any}): {
     command: string;
     options: Array<RouteOptionInterface>
   }{
+    function getOptionDescription(optionName: string): string {
+      const { optionConfig } = config;
+      return optionConfig[optionName] || ''
+    }
     function matchReg(search: string, reg, optionName: string, getRegIndex: number = 1) {
       const matchResult = search.match(reg);
       if (matchResult) {
         return {
           [optionName]: matchResult[getRegIndex],
           rule: search.match(ROUTE_OPTION_ENV_REG) ? (matchResult[1] ? RouteOptionRuleEnum.REST : RouteOptionRuleEnum.PARAM) : RouteOptionRuleEnum.QUERY,
-          search: search.replace(/^[<\[]([\s\S]+)[>\]]$/,'$1')
+          // search: search.replace(/^[<\[]([\s\S]+)[>\]]$/,'$1')
+          search
         }
       }
       return {
@@ -28,16 +34,19 @@ export default class Routers {
       }
     }
     // let options: Array<string|RouteOptionInterface> = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g);
-    let matchResult = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g) || [];
-    const command = route.match(/^([\w\S]+)/)[0];
-    let options:Array<RouteOptionInterface> = matchResult.map((item: string) => {
-      let option = {
+    let optionMatchResult = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g) || [];
+    
+    let commandMatchResult = route.match(/^(\w+)/) || []
+    const command = commandMatchResult[0] || EMPTY_COMMAND_NAME;
+    let options:Array<RouteOptionInterface> = optionMatchResult.map((item: string) => {
+      let option: RouteOptionInterface = {
         rule: RouteOptionRuleEnum.NORMAL,
         required: item[0] === '<' && item[item.length - 1] === '>',
         ...matchReg(item, ROUTE_OPTION_ONE_REG, 'summary_name'),
         ...matchReg(item, ROUTE_OPTION_TWO_REG, 'name'),
         ...matchReg(item, ROUTE_OPTION_ENV_REG, 'name', 2)
       }
+      option.description = getOptionDescription(option.name);
       return option;
     })
     return {
@@ -57,14 +66,11 @@ export default class Routers {
     optionMessage += generateOptionLine('-h | --help', 'output usage information')
     options.forEach(option => {
       if (option.rule === RouteOptionRuleEnum.QUERY) {
-        optionMessage += generateOptionLine(option.search, 'dddd')
+        optionMessage += generateOptionLine(option.search, option.description)
       }
     })
-    console.log(`${usageMessage}\n${optionMessage}\n`);
+    console.log(`${usageMessage}\n\n${optionMessage}\n\n`);
     typeof onHelp === 'function' && onHelp();
-    function generateOptionLine(optionStr: string, description: string): string {
-      return `\n  ${optionStr}      ${description}`
-    }
   }
   /**
    *
@@ -115,13 +121,13 @@ export default class Routers {
    */
   match(ctx: ContextInterface): void {
     const { argv: { params, query }} = ctx;
-    const firstParam = params[0];
+    const firstParam = params[0] || EMPTY_COMMAND_NAME;
     for(const command in this.handlers) {
       //Todo 判断route
       if (command === firstParam) {
         const { fn, options } = this.handlers[command];
-        if (query.help || query.H) { //on - help
-          this.generateAutoHelp(this.handlers[command]);
+        if (query.help || query.h) { //on - help
+          firstParam !== EMPTY_COMMAND_NAME && this.generateAutoHelp(this.handlers[command]);
           break;
         }
         const { verify, message} = this.verifyOption(ctx, options);
@@ -143,7 +149,7 @@ export default class Routers {
     const config = args.filter(arg => is.isObject(arg))[0] || {};
     const middlerwares = args.filter(middleware => typeof middleware === 'function');
     const fn = compose(middlerwares);
-    const { command, options } = Routers.parseRoute(path);
+    const { command, options } = Routers.parseRoute(path, config);
     this.handlers[command] = {
       path,
       options,

@@ -12,27 +12,35 @@ const compose_1 = require("./utils/compose");
 const type_1 = require("./interface/type");
 const contant_1 = require("./utils/contant");
 const is = require("./utils/is");
+const log_1 = require("./utils/log");
 class Routers {
     constructor() {
         this.handlers = {};
     }
-    static parseRoute(route) {
+    static parseRoute(route, config) {
+        function getOptionDescription(optionName) {
+            const { optionConfig } = config;
+            return optionConfig[optionName] || '';
+        }
         function matchReg(search, reg, optionName, getRegIndex = 1) {
             const matchResult = search.match(reg);
             if (matchResult) {
                 return {
                     [optionName]: matchResult[getRegIndex],
                     rule: search.match(contant_1.ROUTE_OPTION_ENV_REG) ? (matchResult[1] ? type_1.RouteOptionRuleEnum.REST : type_1.RouteOptionRuleEnum.PARAM) : type_1.RouteOptionRuleEnum.QUERY,
-                    search: search.replace(/^[<\[]([\s\S]+)[>\]]$/, '$1')
+                    // search: search.replace(/^[<\[]([\s\S]+)[>\]]$/,'$1')
+                    search
                 };
             }
             return {};
         }
         // let options: Array<string|RouteOptionInterface> = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g);
-        let matchResult = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g) || [];
-        const command = route.match(/^([\w\S]+)/)[0];
-        let options = matchResult.map((item) => {
+        let optionMatchResult = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g) || [];
+        let commandMatchResult = route.match(/^(\w+)/) || [];
+        const command = commandMatchResult[0] || contant_1.EMPTY_COMMAND_NAME;
+        let options = optionMatchResult.map((item) => {
             let option = Object.assign({ rule: type_1.RouteOptionRuleEnum.NORMAL, required: item[0] === '<' && item[item.length - 1] === '>' }, matchReg(item, contant_1.ROUTE_OPTION_ONE_REG, 'summary_name'), matchReg(item, contant_1.ROUTE_OPTION_TWO_REG, 'name'), matchReg(item, contant_1.ROUTE_OPTION_ENV_REG, 'name', 2));
+            option.description = getOptionDescription(option.name);
             return option;
         });
         return {
@@ -49,17 +57,14 @@ class Routers {
         const { path, config: { onHelp }, options } = commandConfig;
         let usageMessage = `Usage: ${path}`;
         let optionMessage = 'Options:';
-        optionMessage += generateOptionLine('-h | --help', 'output usage information');
+        optionMessage += log_1.generateOptionLine('-h | --help', 'output usage information');
         options.forEach(option => {
             if (option.rule === type_1.RouteOptionRuleEnum.QUERY) {
-                optionMessage += generateOptionLine(option.search, 'dddd');
+                optionMessage += log_1.generateOptionLine(option.search, option.description);
             }
         });
-        console.log(`${usageMessage}\n${optionMessage}\n`);
+        console.log(`${usageMessage}\n\n${optionMessage}\n\n`);
         typeof onHelp === 'function' && onHelp();
-        function generateOptionLine(optionStr, description) {
-            return `\n  ${optionStr}      ${description}`;
-        }
     }
     /**
      *
@@ -106,13 +111,13 @@ class Routers {
      */
     match(ctx) {
         const { argv: { params, query } } = ctx;
-        const firstParam = params[0];
+        const firstParam = params[0] || contant_1.EMPTY_COMMAND_NAME;
         for (const command in this.handlers) {
             //Todo 判断route
             if (command === firstParam) {
                 const { fn, options } = this.handlers[command];
-                if (query.help || query.H) { //on - help
-                    this.generateAutoHelp(this.handlers[command]);
+                if (query.help || query.h) { //on - help
+                    firstParam !== contant_1.EMPTY_COMMAND_NAME && this.generateAutoHelp(this.handlers[command]);
                     break;
                 }
                 const { verify, message } = this.verifyOption(ctx, options);
@@ -135,7 +140,7 @@ class Routers {
         const config = args.filter(arg => is.isObject(arg))[0] || {};
         const middlerwares = args.filter(middleware => typeof middleware === 'function');
         const fn = compose_1.compose(middlerwares);
-        const { command, options } = Routers.parseRoute(path);
+        const { command, options } = Routers.parseRoute(path, config);
         this.handlers[command] = {
             path,
             options,

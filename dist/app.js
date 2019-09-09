@@ -8,17 +8,18 @@ const router_1 = require("./router");
 const defaultMiddlewares = require("./middlewares/default");
 const router = new router_1.default();
 class App {
-    constructor(options = {}) {
+    constructor(option) {
         this.middlewares = [];
         // this.argv = require('yargs')
         // .usage('Usage: $0 -w [num] -h [num]')
         // .demandOption(['w','h'])
         // .argv;
-        if (options.es6) {
+        if (option.es6) {
             require('babel-register')({
                 plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
             });
         }
+        this.option = option;
         this.argv = new argv_1.default();
         this.cwd = process.cwd();
         //Todo
@@ -45,6 +46,7 @@ class App {
         ctx.argv = this.argv;
         ctx.config = this.config;
         ctx.cwd = this.cwd;
+        ctx.version = this.option.version || '1.0.0';
         return ctx;
     }
     callback() {

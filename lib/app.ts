@@ -1,7 +1,7 @@
 import Context from './utils/context'
 import Argv from './core/argv';
 import Load from './core/load';
-import { AppMiddleware } from './interface/type'
+import { AppMiddleware, AppOptionInterface, ContextInterface} from './interface/type'
 import * as is from './utils/is'
 import { compose } from './utils/compose'
 import Router from './router';
@@ -10,18 +10,19 @@ const router = new Router()
 class App {
   public argv: any;
   public handle;
-  public ctx: any;
+  public ctx: ContextInterface;
   public config: any;
   public cwd: string;
   public allCommands: any;
   public baseLoad: any;
   public middlewares: Array<AppMiddleware> = [];
-  constructor(options: any = {}) {
+  public option: AppOptionInterface
+  constructor(option: AppOptionInterface) {
     // this.argv = require('yargs')
     // .usage('Usage: $0 -w [num] -h [num]')
     // .demandOption(['w','h'])
     // .argv;
-    if (options.es6) {
+    if (option.es6) {
       require('babel-register')
       (
         {
@@ -29,6 +30,7 @@ class App {
         }
       )
     }
+    this.option = option;
     this.argv = new Argv();
     this.cwd = process.cwd();
     //Todo
@@ -42,7 +44,6 @@ class App {
     setTimeout(() => {
       this.callback();
     }, 10)
-  
   }
   use(fn: Function) {
     if (typeof fn !== 'function') {
@@ -56,6 +57,7 @@ class App {
     ctx.argv = this.argv;
     ctx.config = this.config;
     ctx.cwd = this.cwd;
+    ctx.version = this.option.version || '1.0.0'
     return ctx;
   }
   callback() {

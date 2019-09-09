@@ -7,6 +7,8 @@ class Context {
      * @memberof Context
      */
     constructor(app) {
+        this.routes = {};
+        this.version = '1.0.0';
         // this.app = app;
         // this.config = app.config;
     }
