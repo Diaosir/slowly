@@ -11,27 +11,30 @@ const { App, Router } = require('../../dist/index');
 const router = new Router()
 const app = new App({
   es6: true,
-  version: '1.0.0'
+  version: '1.0.0',
+  name: 'test-slowly'
 });
 
-router.register('init <dir> [-q | --quiet] <-a | --action>', {
+router.register('init <template> [-q | --quiet] <-a | --action>', {
   optionConfig: {
-    dir: 'ddd',
+    template: 'ddd',
     quiet: 'quiet is not required',
     action: 'action is required'
   },
-  onHelp: () => {
-    console.log('Examples:');
-    console.log('  $ asdasd');
-    console.log('  $ sasdd -h');
-  },
-  description: 'init the template of project and relate the project to the remote repository'
+  description: 'init the template of project and relate the project to the remote repository',
 }, app.ctx.controller.home.init);
+
 router.register('[-a | --action]', {
   optionConfig: {
     action: "upload files to server"
   }
-}, async () => {
-  console.log(11)
+})
+router.register('new [-a | --action]', {
+  optionConfig: {
+    action: "upload files to server"
+  },
+  description: 'init the template of project and relate the project to the remote repository',
 })
 app.use(router.routes());
+
+app.ctx.emitter.on('')

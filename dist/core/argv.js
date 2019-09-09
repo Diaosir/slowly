@@ -60,7 +60,7 @@ class Argv {
                     break;
                 }
                 //如果下一个参数是带有'-' 或者 '--' 符合的则给上一个设置为true
-                if (effectiveArgv[i + 1].match(contant_1.OPTION_TWO_REG) || effectiveArgv[i + 1].match(contant_1.OPTION_TWO_REG)) {
+                if (effectiveArgv[i + 1].match(contant_1.OPTION_ONE_REG) || effectiveArgv[i + 1].match(contant_1.OPTION_TWO_REG)) {
                     this.setObject(this.query, matchOne_[1], true);
                     i++;
                     continue;

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const eventHandler_1 = require("../utils/eventHandler");
 class Context {
     /**
      *Creates an instance of Context.
@@ -9,6 +10,7 @@ class Context {
     constructor(app) {
         this.routes = {};
         this.version = '1.0.0';
+        this.emitter = new eventHandler_1.default();
         // this.app = app;
         // this.config = app.config;
     }

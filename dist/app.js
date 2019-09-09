@@ -9,6 +9,7 @@ const defaultMiddlewares = require("./middlewares/default");
 const router = new router_1.default();
 class App {
     constructor(option) {
+        this.name = '';
         this.middlewares = [];
         // this.argv = require('yargs')
         // .usage('Usage: $0 -w [num] -h [num]')
@@ -47,6 +48,7 @@ class App {
         ctx.config = this.config;
         ctx.cwd = this.cwd;
         ctx.version = this.option.version || '1.0.0';
+        ctx.name = this.option.name;
         return ctx;
     }
     callback() {

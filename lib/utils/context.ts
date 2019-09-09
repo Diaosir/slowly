@@ -1,4 +1,5 @@
 import { ContextInterface, ArgvInterface, RouteConfigInterfase} from '../interface/type';
+import EventHandler from '../utils/eventHandler';
 export default class Context implements ContextInterface {
   public services: {
     [propName: string]: any;
@@ -12,6 +13,8 @@ export default class Context implements ContextInterface {
     [key: string]: RouteConfigInterfase
   } = {}
   public version: string = '1.0.0';
+  public emitter = new EventHandler()
+  public name?: string;
   /**
    *Creates an instance of Context.
    * @param {*} app 

@@ -13,7 +13,9 @@ export interface ContextInterface {
   routes: {
     [key: string]: RouteConfigInterfase
   }
-  version: string
+  version: string;
+  emitter: any;
+  name?: string;
 }
 export interface ArgvInterface {
   originalArgv: Array<string>;
@@ -57,4 +59,17 @@ export interface RouteConfigInterfase {
 export interface AppOptionInterface {
   es6?: boolean;
   version: string; 
+  name: string;
+}
+
+export interface EventEmitter{
+  on(event: string, listener: Function): this;
+  prependListener(event: string, listener: Function): this;
+  once(event: string, listener: Function): this;
+  removeListener(event: string, listener: Function): this;
+  off(event: string, listener: Function): this;
+  removeAllListeners(event: Array<string>): this
+  setMaxListeners(n: number): this;
+  listeners(event: string): Array<any>;
+  emit(event: string, ...args: any[]): boolean;
 }

@@ -3,6 +3,24 @@ import { ContextInterface, RouteOptionInterface, RouteOptionRuleEnum, RouteConfi
 import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_ENV_REG, EMPTY_COMMAND_NAME} from './utils/contant'
 import * as is from './utils/is'
 import { generateOptionLine } from './utils/log'
+/**
+ *
+ * find Illegality Route Option
+ * @param {Object} [query]
+ * @param {Array<RouteOptionInterface>} [comandOptions]
+ * @returns {Array<string>}
+ */
+function getIllegalityRouteOption(query?: Object, comandOptions?: Array<RouteOptionInterface>): Array<string> {
+  let illegalityRouteOptions = []
+  Object.keys(query).forEach(queryName => {
+    let targetOption = comandOptions.filter(option => {
+      return [option.name, option.summary_name].includes(queryName)
+    })
+    targetOption.length === 0 && illegalityRouteOptions.push(queryName)
+  })
+  return illegalityRouteOptions
+}
+
 export default class Routers {
   public path: any;
   public middlewares: any;
@@ -86,58 +104,65 @@ export default class Routers {
     const { argv: { params, query }} = ctx;
     const [command, ...restParams] = params;
     let verify = true, message = '';
-    comandOptions.forEach((option) => {
-      const { rule, name, summary_name, required, search} = option;
-      switch(rule) {
-        case RouteOptionRuleEnum.QUERY:
-          query[name] = query[name] || query[summary_name];
-          delete query[summary_name];
-          if (required && query[name] === undefined) {
-            message += `\noption ${search} is required`;
-            verify = false;
-          }
-          break;
-        case RouteOptionRuleEnum.PARAM:
-          if (required && restParams[0] === undefined) {
-            verify = false;
-            message += `\nparam ${search} is required`
-          }
-          query[name] = restParams.shift();
-          break;
-        case RouteOptionRuleEnum.REST:
-          query[name] = restParams;
-          break;
-      }
-    })
+    const illegalityRouteOptions = getIllegalityRouteOption(query, comandOptions);
+    if (illegalityRouteOptions.length > 0) {
+      verify = false;
+      message = `error: illegality option ${illegalityRouteOptions.join(` | `)}`
+      ctx.emitter.emit('illegality:option', illegalityRouteOptions)
+    } else {
+      comandOptions.forEach((option) => {
+        const { rule, name, summary_name, required, search} = option;
+        switch(rule) {
+          case RouteOptionRuleEnum.QUERY:
+            query[name] = query[name] || query[summary_name];
+            delete query[summary_name];
+            if (required && query[name] === undefined) {
+              message += `\noption ${search} is required`;
+              verify = false;
+            }
+            break;
+          case RouteOptionRuleEnum.PARAM:
+            if (required && restParams[0] === undefined) {
+              verify = false;
+              message += `\nparam ${search} is required`
+            }
+            query[name] = restParams.shift();
+            break;
+          case RouteOptionRuleEnum.REST:
+            query[name] = restParams;
+            break;
+        }
+      })
+    }
+
     return {
       verify: verify,
       message: message
     };
   }
-
   /**
    * init <dir> [...otherDirs] [-q | --quiet] <-a | --action>
    * @param ctx 
    */
   match(ctx: ContextInterface): void {
     const { argv: { params, query }} = ctx;
-    const firstParam = params[0] || EMPTY_COMMAND_NAME;
-    for(const command in this.handlers) {
-      //Todo 判断route
-      if (command === firstParam) {
-        const { fn, options } = this.handlers[command];
-        if (query.help || query.h) { //on - help
-          firstParam !== EMPTY_COMMAND_NAME && this.generateAutoHelp(this.handlers[command]);
-          break;
+    const command = params[0] || EMPTY_COMMAND_NAME;
+    if (this.handlers[command]) {
+      const { fn, options } = this.handlers[command];
+        if ((query.help || query.h) &&  command !== EMPTY_COMMAND_NAME) { //on - help
+          this.generateAutoHelp(this.handlers[command]);
+          ctx.emitter.emit('help', command);
+          return;
         }
         const { verify, message} = this.verifyOption(ctx, options);
         if (verify) {
           fn(ctx);
         } else {
+          if (!verify) {
+            ctx.emitter.emit('verifyOptionFailed', command, options)
+          }
           console.log(message)
         }
-        break;
-      }
     }
   }
   /**
