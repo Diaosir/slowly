@@ -82,4 +82,15 @@ export default class Argv implements ArgvInterface {
       i++;
     }
   }
+  /**
+   *
+   * @param {*} queryName
+   * @memberof Argv
+   */
+   public static getOriginalOptionNameByQueryName(originalArgv: Array<string>, queryName: string) {
+    const matchArgv = originalArgv.filter(argv => {
+      return [`-${queryName}`, `--${queryName}`].includes(argv);
+    })
+    return matchArgv[0] || queryName;
+  }
 }

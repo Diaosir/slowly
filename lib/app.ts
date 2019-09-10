@@ -68,5 +68,6 @@ class App {
   }
   help() {
   }
+  usage() {}
 }
 export default App;

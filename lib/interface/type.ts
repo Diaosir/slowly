@@ -16,6 +16,9 @@ export interface ContextInterface {
   version: string;
   emitter: any;
   name?: string;
+  middleware?: {
+    [key: string]: any
+  }
 }
 export interface ArgvInterface {
   originalArgv: Array<string>;
@@ -47,6 +50,9 @@ export interface RouteConfigInterfase {
   path: string;
   options: Array<RouteOptionInterface>;
   fn: Function;
+  description?: string;
+  alias?: string;
+  usage?: string;
   config: {
     onHelp?: Function;
     usage: string | Function;

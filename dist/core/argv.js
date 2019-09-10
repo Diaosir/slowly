@@ -79,5 +79,16 @@ class Argv {
             i++;
         }
     }
+    /**
+     *
+     * @param {*} queryName
+     * @memberof Argv
+     */
+    static getOriginalOptionNameByQueryName(originalArgv, queryName) {
+        const matchArgv = originalArgv.filter(argv => {
+            return [`-${queryName}`, `--${queryName}`].includes(argv);
+        });
+        return matchArgv[0] || queryName;
+    }
 }
 exports.default = Argv;

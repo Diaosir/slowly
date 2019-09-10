@@ -57,5 +57,6 @@ class App {
     }
     help() {
     }
+    usage() { }
 }
 exports.default = App;

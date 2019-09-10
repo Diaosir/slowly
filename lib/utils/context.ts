@@ -15,6 +15,9 @@ export default class Context implements ContextInterface {
   public version: string = '1.0.0';
   public emitter = new EventHandler()
   public name?: string;
+  public middleware?: {
+    [key: string]: any
+  } = {}
   /**
    *Creates an instance of Context.
    * @param {*} app 

@@ -1,6 +1,7 @@
 import { RouteConfigInterfase, ContextInterface, RouteOptionRuleEnum} from '../interface/type'
 import { EMPTY_COMMAND_NAME } from '../utils/contant'
-import { generateOptionLine } from '../utils/log'
+import * as Log from '../utils/log'
+import Routers from '../router'
 const leven = require('leven');
 function isGlobalHelp(ctx) {
     const { argv: { params, query }, routes } = ctx;
@@ -15,19 +16,19 @@ export async function GlobalHelp (ctx: ContextInterface, next) {
     await next();
     const { routes } = ctx;
     if (isGlobalHelp(ctx)) { // handle help
-        let message = 'Commands: ';
-        let usageMessage = `Usage: ${ctx.name} <command> [options]`
-        let optionMessage = `Options: `;
+        let message = Log.getInfo('Commands: ');
+        let usageMessage = Log.getInfo('Usage:', `${ctx.name} <command> [options]`);
+        let optionMessage = Log.getInfo('Options: ');
         for(let routeName in routes){
-            const { config: { description }, options, path} = routes[routeName];
+            const {description, options, path} = routes[routeName];
             if (EMPTY_COMMAND_NAME === routeName) {
                 options.forEach(option => {
                     if (option.rule === RouteOptionRuleEnum.QUERY) {
-                      optionMessage += generateOptionLine(option.search, option.description)
+                      optionMessage += Log.generateOptionLine(option.search, option.description)
                     }
                   })
             } else {
-                message += generateOptionLine(path, description)
+                message += Log.generateOptionLine(path, description)
             }
         }
         console.log(`${usageMessage}\n\n${message}\n\n${optionMessage}`)
@@ -54,7 +55,7 @@ export async function GlobalCheckCommand(ctx, next) {
     const { argv: { params }, routes} = ctx;
     const [command, ...resetParams] = params;
     const hasRegisterCommandList = Object.keys(routes).filter(item => item !== EMPTY_COMMAND_NAME);
-    if (command !== undefined && !hasRegisterCommandList.includes(command)) {
+    if (command !== undefined && !Routers.getHandlerByCommandName(command, routes)) {
         console.log(`${ctx.name}: '${command}' is not a command, See '${ctx.name} --help'`)
         const sortCommandList = hasRegisterCommandList.filter(item => leven(item, command) <= 2 ).sort((a: string, b: string) => {
             return leven(a, command) - leven(b, command);
@@ -62,5 +63,15 @@ export async function GlobalCheckCommand(ctx, next) {
         if (sortCommandList.length > 0) {
             console.log(`The most similar command is:  ${sortCommandList[0]}`)
         }
+    }
+}
+export async function GlobEmptyArgv(ctx, next) {
+    await next()
+    const { argv: { query, params}} = ctx;
+    const emptyOption = Object.keys(query).filter(key => {
+        return query[key] !== undefined;
+    })
+    if (params.length === 0 && emptyOption.length === 0) {
+        Log.warning(`there is not any command and option, See '${ctx.name} --help'`)
     }
 }

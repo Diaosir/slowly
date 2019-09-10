@@ -2,7 +2,8 @@ import { compose } from './utils/compose'
 import { ContextInterface, RouteOptionInterface, RouteOptionRuleEnum, RouteConfigInterfase} from './interface/type'
 import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_ENV_REG, EMPTY_COMMAND_NAME} from './utils/contant'
 import * as is from './utils/is'
-import { generateOptionLine } from './utils/log'
+import * as Log from './utils/log'
+import Argv from './core/argv'
 /**
  *
  * find Illegality Route Option
@@ -10,33 +11,30 @@ import { generateOptionLine } from './utils/log'
  * @param {Array<RouteOptionInterface>} [comandOptions]
  * @returns {Array<string>}
  */
-function getIllegalityRouteOption(query?: Object, comandOptions?: Array<RouteOptionInterface>): Array<string> {
+function getIllegalityRouteOption(ctx: ContextInterface, comandOptions?: Array<RouteOptionInterface>): Array<string> {
+  let { argv: { query, originalArgv}, argv } = ctx;
   let illegalityRouteOptions = []
   Object.keys(query).forEach(queryName => {
     let targetOption = comandOptions.filter(option => {
       return [option.name, option.summary_name].includes(queryName)
     })
-    targetOption.length === 0 && illegalityRouteOptions.push(queryName)
+    targetOption.length === 0 && illegalityRouteOptions.push(`'${Argv.getOriginalOptionNameByQueryName(originalArgv, queryName)}'`)
   })
   return illegalityRouteOptions
 }
-
 export default class Routers {
   public path: any;
   public middlewares: any;
+  public currentRouteName?: string = '';
   public handlers: {
     [key: string]: RouteConfigInterfase;
   } = {};
   constructor() {
   }
-  public static parseRoute(route: string, config: { [key: string]: any}): {
+  public static parseRoute(route: string, config: { [key: string]: any} = {}): {
     command: string;
     options: Array<RouteOptionInterface>
   }{
-    function getOptionDescription(optionName: string): string {
-      const { optionConfig } = config;
-      return optionConfig[optionName] || ''
-    }
     function matchReg(search: string, reg, optionName: string, getRegIndex: number = 1) {
       const matchResult = search.match(reg);
       if (matchResult) {
@@ -62,9 +60,9 @@ export default class Routers {
         required: item[0] === '<' && item[item.length - 1] === '>',
         ...matchReg(item, ROUTE_OPTION_ONE_REG, 'summary_name'),
         ...matchReg(item, ROUTE_OPTION_TWO_REG, 'name'),
-        ...matchReg(item, ROUTE_OPTION_ENV_REG, 'name', 2)
+        ...matchReg(item, ROUTE_OPTION_ENV_REG, 'name', 2),
+        description: config.description
       }
-      option.description = getOptionDescription(option.name);
       return option;
     })
     return {
@@ -78,16 +76,17 @@ export default class Routers {
    * @memberof Routers
    */
   private generateAutoHelp(commandConfig: RouteConfigInterfase): void {
-    const { path, config: { onHelp }, options} = commandConfig;
-    let usageMessage = `Usage: ${path}`;
-    let optionMessage = 'Options:';
-    optionMessage += generateOptionLine('-h | --help', 'output usage information')
+    const { path, config: { onHelp }, options, usage, description } = commandConfig;
+    let usageMessage = Log.getInfo('Usage', usage || path);
+    let descriptionMessage = Log.getInfo('Description', description);
+    let optionMessage = Log.getInfo('Options', '');
+    optionMessage += Log.generateOptionLine('-h | --help', 'output usage information')
     options.forEach(option => {
       if (option.rule === RouteOptionRuleEnum.QUERY) {
-        optionMessage += generateOptionLine(option.search, option.description)
+        optionMessage += Log.generateOptionLine(option.search, option.description)
       }
     })
-    console.log(`${usageMessage}\n\n${optionMessage}\n\n`);
+    console.log(`${usageMessage}\n\n${descriptionMessage}\n\n${optionMessage}\n\n`);
     typeof onHelp === 'function' && onHelp();
   }
   /**
@@ -104,11 +103,11 @@ export default class Routers {
     const { argv: { params, query }} = ctx;
     const [command, ...restParams] = params;
     let verify = true, message = '';
-    const illegalityRouteOptions = getIllegalityRouteOption(query, comandOptions);
+    const illegalityRouteOptions = getIllegalityRouteOption(ctx, comandOptions);
     if (illegalityRouteOptions.length > 0) {
       verify = false;
-      message = `error: illegality option ${illegalityRouteOptions.join(` | `)}`
-      ctx.emitter.emit('illegality:option', illegalityRouteOptions)
+      message = `illegality option ${illegalityRouteOptions.join('、')}`
+      ctx.emitter.emit('illegality:option', command, illegalityRouteOptions)
     } else {
       comandOptions.forEach((option) => {
         const { rule, name, summary_name, required, search} = option;
@@ -147,11 +146,15 @@ export default class Routers {
   match(ctx: ContextInterface): void {
     const { argv: { params, query }} = ctx;
     const command = params[0] || EMPTY_COMMAND_NAME;
-    if (this.handlers[command]) {
-      const { fn, options } = this.handlers[command];
-        if ((query.help || query.h) &&  command !== EMPTY_COMMAND_NAME) { //on - help
-          this.generateAutoHelp(this.handlers[command]);
-          ctx.emitter.emit('help', command);
+    const _this = this;
+    const handler = Routers.getHandlerByCommandName(command, this.handlers);
+    if (handler) {
+      const { fn, options } = handler;
+        if (query.help || query.h) { //on - help
+          if (command !== EMPTY_COMMAND_NAME) {
+            this.generateAutoHelp(handler);
+            ctx.emitter.emit('command:help', command);
+          }
           return;
         }
         const { verify, message} = this.verifyOption(ctx, options);
@@ -159,9 +162,9 @@ export default class Routers {
           fn(ctx);
         } else {
           if (!verify) {
-            ctx.emitter.emit('verifyOptionFailed', command, options)
+            ctx.emitter.emit('verifyOption:fail', command, options)
           }
-          console.log(message)
+          Log.error(message);
         }
     }
   }
@@ -172,13 +175,16 @@ export default class Routers {
    */
   register(path, ...args) {
     const config = args.filter(arg => is.isObject(arg))[0] || {};
+    const description = args.filter(arg => is.isString(arg))[0] || ''
     const middlerwares = args.filter(middleware => typeof middleware === 'function');
     const fn = compose(middlerwares);
     const { command, options } = Routers.parseRoute(path, config);
+    this.currentRouteName = command;
     this.handlers[command] = {
       path,
       options,
       fn,
+      description,
       config
     }
     return this;
@@ -195,7 +201,66 @@ export default class Routers {
         ...ctx.routes,
         ..._this.handlers
       }
+      // console.log(ctx)
+      // Todo 无命令输入，且没有注册option
       _this.match(ctx);
     }
+  }
+  public alias(aliasName: string) {
+    if (this.handlers[this.currentRouteName]) {
+      this.handlers[this.currentRouteName] = {
+        ...this.handlers[this.currentRouteName],
+        alias: aliasName
+      }
+    }
+    return this;
+  }
+  /**
+   * register action
+   * @param {*} middlerwares
+   * @returns
+   * @memberof Routers
+   */
+  public action(...middlerwares) {
+    const fn = compose(middlerwares);
+    if (this.handlers[this.currentRouteName]) {
+      this.handlers[this.currentRouteName] = {
+        ...this.handlers[this.currentRouteName],
+        fn: fn
+      }
+    }
+    return this;
+  }
+  public usage(description: string){
+    if (this.handlers[this.currentRouteName]) {
+      this.handlers[this.currentRouteName] = {
+        ...this.handlers[this.currentRouteName],
+        usage: description
+      }
+    }
+    return this;
+  }
+  public option(name: string, description?: string, handler?: Function) {
+    const commandHndler = this.handlers[this.currentRouteName]
+    if (commandHndler) {
+      const { options } = commandHndler;
+      const { options: newOptions } = Routers.parseRoute(name, { description });
+      this.handlers[this.currentRouteName] = {
+        ...commandHndler,
+        options: options.concat(newOptions)
+      }
+    }
+    return this;
+  }
+  public static getHandlerByCommandName(commandName: string, commandHandlers) {
+    if (commandHandlers[commandName]) {
+      return commandHandlers[commandName]
+    }
+    for (let key in commandHandlers) {
+      if (commandHandlers[key].alias === commandName) {
+        return commandHandlers[key]
+      }
+    }
+    return null
   }
 }
