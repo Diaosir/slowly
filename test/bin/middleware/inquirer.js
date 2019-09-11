@@ -20,7 +20,7 @@ const quetions = [
     },
     validate: async function(input) {
       console.log('asdasdasdaswd')
-      return false
+      return true
     }
   }
 ]
