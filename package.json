@@ -27,6 +27,7 @@
     "chalk": "^2.4.2",
     "glob": "^7.1.4",
     "inquirer": "^7.0.0",
+    "keypress": "^0.2.1",
     "leven": "^3.1.0",
     "prettyjson": "^1.2.1",
     "typescript-tslint-plugin": "^0.5.4"

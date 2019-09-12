@@ -4,6 +4,7 @@ import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_ENV_REG, EMPTY
 import * as is from './utils/is'
 import * as Log from './utils/log'
 import Argv from './core/argv'
+import Json from './utils/json'
 /**
  *
  * find Illegality Route Option
@@ -128,6 +129,10 @@ export default class Routers {
             query[name] = restParams.shift();
             break;
           case RouteOptionRuleEnum.REST:
+            if (required && restParams[0] === undefined) {
+              verify = false;
+              message += `\nparam ${search} is required`
+            }
             query[name] = restParams;
             break;
         }
@@ -180,6 +185,7 @@ export default class Routers {
     const fn = compose(middlerwares);
     const { command, options } = Routers.parseRoute(path, config);
     this.currentRouteName = command;
+    // Json.render(options)
     this.handlers[command] = {
       path,
       options,
@@ -245,9 +251,11 @@ export default class Routers {
     if (commandHndler) {
       const { options } = commandHndler;
       const { options: newOptions } = Routers.parseRoute(name, { description });
+      const path = `${commandHndler.path} ${newOptions.map(item => item.search).join(' ')}`
       this.handlers[this.currentRouteName] = {
         ...commandHndler,
-        options: options.concat(newOptions)
+        options: options.concat(newOptions),
+        path
       }
     }
     return this;

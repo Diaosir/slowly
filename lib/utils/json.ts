@@ -6,18 +6,12 @@ export default class Json {
   constructor(json) {
     this.data = json;
   }
-  output() {
+  public static render(json) {
     // const string = JSON.stringify(this.data);
     // function createString(json) {
 
-    // }
-    var data = {
-      username: 'rafeca',
-      url: 'https://github.com/rafeca',
-      twitter_account: 'https://twitter.com/rafeca',
-      projects: ['prettyprint', 'connfu', { 'name': 'dd'}, 0,]
-    };
-    console.log(prettyjson.render(data, {
+    //
+    console.log(prettyjson.render(json, {
       noColor: false
     }));
     // console.log(this.data);

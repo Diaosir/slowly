@@ -119,6 +119,10 @@ class Routers {
                         query[name] = restParams.shift();
                         break;
                     case type_1.RouteOptionRuleEnum.REST:
+                        if (required && restParams[0] === undefined) {
+                            verify = false;
+                            message += `\nparam ${search} is required`;
+                        }
                         query[name] = restParams;
                         break;
                 }
@@ -171,6 +175,7 @@ class Routers {
         const fn = compose_1.compose(middlerwares);
         const { command, options } = Routers.parseRoute(path, config);
         this.currentRouteName = command;
+        // Json.render(options)
         this.handlers[command] = {
             path,
             options,
@@ -226,7 +231,8 @@ class Routers {
         if (commandHndler) {
             const { options } = commandHndler;
             const { options: newOptions } = Routers.parseRoute(name, { description });
-            this.handlers[this.currentRouteName] = Object.assign({}, commandHndler, { options: options.concat(newOptions) });
+            const path = `${commandHndler.path} ${newOptions.map(item => item.search).join(' ')}`;
+            this.handlers[this.currentRouteName] = Object.assign({}, commandHndler, { options: options.concat(newOptions), path });
         }
         return this;
     }
