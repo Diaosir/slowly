@@ -14,7 +14,7 @@ import Json from './utils/json'
  */
 function getIllegalityRouteOption(ctx: ContextInterface, comandOptions?: Array<RouteOptionInterface>): Array<string> {
   let { argv: { query, originalArgv}, argv } = ctx;
-  let illegalityRouteOptions = []
+  let illegalityRouteOptions = [];
   Object.keys(query).forEach(queryName => {
     let targetOption = comandOptions.filter(option => {
       return [option.name, option.summary_name].includes(queryName)
@@ -108,37 +108,39 @@ export default class Routers {
     if (illegalityRouteOptions.length > 0) {
       verify = false;
       message = `illegality option ${illegalityRouteOptions.join('、')}`
-      ctx.emitter.emit('illegality:option', command, illegalityRouteOptions)
-    } else {
-      comandOptions.forEach((option) => {
-        const { rule, name, summary_name, required, search} = option;
-        switch(rule) {
-          case RouteOptionRuleEnum.QUERY:
-            query[name] = query[name] || query[summary_name];
-            delete query[summary_name];
-            if (required && query[name] === undefined) {
-              message += `\noption ${search} is required`;
-              verify = false;
-            }
-            break;
-          case RouteOptionRuleEnum.PARAM:
-            if (required && restParams[0] === undefined) {
-              verify = false;
-              message += `\nparam ${search} is required`
-            }
-            query[name] = restParams.shift();
-            break;
-          case RouteOptionRuleEnum.REST:
-            if (required && restParams[0] === undefined) {
-              verify = false;
-              message += `\nparam ${search} is required`
-            }
-            query[name] = restParams;
-            break;
-        }
-      })
-    }
-
+      ctx.emitter.emit('illegality:option', command, illegalityRouteOptions);
+      return {
+        verify,
+        message
+      }
+    } 
+    comandOptions.forEach((option) => {
+      const { rule, name, summary_name, required, search} = option;
+      switch(rule) {
+        case RouteOptionRuleEnum.QUERY:
+          query[name] = query[name] || query[summary_name];
+          delete query[summary_name];
+          if (required && query[name] === undefined) {
+            message += `\noption ${search} is required`;
+            verify = false;
+          }
+          break;
+        case RouteOptionRuleEnum.PARAM:
+          if (required && restParams[0] === undefined) {
+            verify = false;
+            message += `\nparam ${search} is required`
+          }
+          query[name] = restParams.shift();
+          break;
+        case RouteOptionRuleEnum.REST:
+          if (required && restParams[0] === undefined) {
+            verify = false;
+            message += `\nparam ${search} is required`
+          }
+          query[name] = restParams;
+          break;
+      }
+    })
     return {
       verify: verify,
       message: message
@@ -149,29 +151,35 @@ export default class Routers {
    * @param ctx 
    */
   match(ctx: ContextInterface): void {
-    const { argv: { params, query }} = ctx;
+    const { argv: { params }} = ctx;
     const command = params[0] || EMPTY_COMMAND_NAME;
-    const _this = this;
     const handler = Routers.getHandlerByCommandName(command, this.handlers);
     if (handler) {
-      const { fn, options } = handler;
-        if (query.help || query.h) { //on - help
-          if (command !== EMPTY_COMMAND_NAME) {
-            this.generateAutoHelp(handler);
-            ctx.emitter.emit('command:help', command);
-          }
-          return;
-        }
-        const { verify, message} = this.verifyOption(ctx, options);
-        if (verify) {
-          fn(ctx);
-        } else {
-          if (!verify) {
-            ctx.emitter.emit('verifyOption:fail', command, options)
-          }
-          Log.error(message);
-        }
+      handler.fn(ctx);
     }
+  }
+  async before(ctx, next) {
+    const { argv: { params, query }} = ctx;
+    const command = params[0] || EMPTY_COMMAND_NAME;
+    const handler = Routers.getHandlerByCommandName(command, this.handlers);
+    const { options } = handler;
+    if (query.help || query.h) { //on - help
+      if (command !== EMPTY_COMMAND_NAME) {
+        this.generateAutoHelp(handler);
+        ctx.emitter.emit('command:help', command);
+      }
+      return;
+    }
+    const { verify, message} = this.verifyOption(ctx, options);
+    if (verify) {
+      await next()
+    } else {
+      ctx.emitter.emit('verifyOption:fail', command, options)
+      Log.error(message);
+    }
+  }
+  async after(ctx, next) {
+    console.log(ctx)
   }
   /**
    *
@@ -181,8 +189,8 @@ export default class Routers {
   register(path, ...args) {
     const config = args.filter(arg => is.isObject(arg))[0] || {};
     const description = args.filter(arg => is.isString(arg))[0] || ''
-    const middlerwares = args.filter(middleware => typeof middleware === 'function');
-    const fn = compose(middlerwares);
+    const middlerwares = args.filter(arg => typeof arg === 'function');
+    const fn = compose([this.before.bind(this), ...middlerwares, this.after.bind(this)]);
     const { command, options } = Routers.parseRoute(path, config);
     this.currentRouteName = command;
     // Json.render(options)
@@ -228,7 +236,7 @@ export default class Routers {
    * @memberof Routers
    */
   public action(...middlerwares) {
-    const fn = compose(middlerwares);
+    const fn = compose([this.before.bind(this), ...middlerwares, this.after.bind(this)]);
     if (this.handlers[this.currentRouteName]) {
       this.handlers[this.currentRouteName] = {
         ...this.handlers[this.currentRouteName],

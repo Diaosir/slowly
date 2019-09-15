@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 "use strict";
 process.cwd = function() {
-  // return 'G:\\github\\slowly\\test\\bin'
-  return '/Users/fengzhihao/Projects/github/slowly/test/bin'
+  return 'G:\\github\\slowly\\test\\bin'
+  // return '/Users/fengzhihao/Projects/github/slowly/test/bin'
 }
 const { App, Router } = require('../../dist/index');
 
@@ -17,7 +17,9 @@ router.register(`init <template>`, 'init the template of project and relate the 
       .usage('init <template> [-q | --quiet] <-a | --action>')
       .option('[-q | --quiet]', 'quiet is required', 'dd')
       .option('<-a | --action>', 'quiet is required', 'dd')
-      .action(app.ctx.controller.home.init)
+      .option('<-n | --name>', 'name is required', 'dd')
+      .action(app.ctx.middleware.inquirer(), app.ctx.controller.home.init)
+      
 router.register('[-b | --blue] <-a | --add>', async (ctx, next) => {
   console.log(ctx.argv.query)
 })

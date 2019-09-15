@@ -6,6 +6,11 @@ const load_1 = require("./core/load");
 const compose_1 = require("./utils/compose");
 const router_1 = require("./router");
 const defaultMiddlewares = require("./middlewares/default");
+const ora = require('ora');
+// setTimeout(() => {
+//     spinner.color = 'yellow';
+//     spinner.text = 'Loading rainbows';
+// }, 1000);
 const router = new router_1.default();
 class App {
     constructor(option) {
@@ -15,6 +20,7 @@ class App {
         // .usage('Usage: $0 -w [num] -h [num]')
         // .demandOption(['w','h'])
         // .argv;
+        const spinner = ora('slowly start').start();
         if (option.es6) {
             require('babel-register')({
                 plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
@@ -33,6 +39,7 @@ class App {
         this.use(router.routes());
         setTimeout(() => {
             this.callback();
+            spinner.stop();
         }, 10);
     }
     use(fn) {

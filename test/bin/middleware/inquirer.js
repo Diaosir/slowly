@@ -15,11 +15,9 @@ const quetions = [
     name : "subject",
     message : "Subject - ",
     when: function(input) {
-      // console.log(input)
       return true
     },
     validate: async function(input) {
-      console.log('asdasdasdaswd')
       return true
     }
   }

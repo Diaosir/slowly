@@ -6,7 +6,13 @@ import * as is from './utils/is'
 import { compose } from './utils/compose'
 import Router from './router';
 import * as defaultMiddlewares from './middlewares/default';
-
+const ora = require('ora');
+ 
+ 
+// setTimeout(() => {
+//     spinner.color = 'yellow';
+//     spinner.text = 'Loading rainbows';
+// }, 1000);
 const router = new Router()
 class App {
   public name: string = '';
@@ -18,11 +24,13 @@ class App {
   public baseLoad: any;
   public middlewares: Array<AppMiddleware> = [];
   public option: AppOptionInterface
+  
   constructor(option: AppOptionInterface) {
     // this.argv = require('yargs')
     // .usage('Usage: $0 -w [num] -h [num]')
     // .demandOption(['w','h'])
     // .argv;
+    const spinner = ora('slowly start').start();
     if (option.es6) {
       require('babel-register')
       (
@@ -44,7 +52,9 @@ class App {
     this.use(router.routes())
     setTimeout(() => {
       this.callback();
+      spinner.stop()
     }, 10)
+    
   }
   use(fn: Function) {
     if (typeof fn !== 'function') {
