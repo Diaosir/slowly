@@ -20,7 +20,7 @@ class App {
         // .usage('Usage: $0 -w [num] -h [num]')
         // .demandOption(['w','h'])
         // .argv;
-        const spinner = ora('slowly start').start();
+        // const spinner = ora('slowly start').start();
         if (option.es6) {
             require('babel-register')({
                 plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
@@ -39,7 +39,6 @@ class App {
         this.use(router.routes());
         setTimeout(() => {
             this.callback();
-            spinner.stop();
         }, 10);
     }
     use(fn) {

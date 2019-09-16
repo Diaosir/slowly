@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 "use strict";
 process.cwd = function() {
-  return 'G:\\github\\slowly\\test\\bin'
-  // return '/Users/fengzhihao/Projects/github/slowly/test/bin'
+  // return 'G:\\github\\slowly\\test\\bin'
+  return '/Users/fengzhihao/Projects/github/slowly/test/bin'
 }
 const { App, Router } = require('../../dist/index');
 
@@ -33,5 +33,12 @@ app.ctx.emitter.on('command:help', function(command) {
   // console.log(command)
 })
 app.ctx.emitter.on('illegality:option', function(command, option) {
+  console.log('............')
+  console.log('............')
+  console.log('............')
+  console.log('............')
+  console.log('............')
+  console.log('............')
+  console.log('............')
   // console.log(command)
 })
