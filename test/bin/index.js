@@ -16,9 +16,7 @@ router.register(`init <template>`, 'init the template of project and relate the 
       .option('<-n | --name>', 'name is required', 'dd')
       .action(app.ctx.middleware.inquirer(), app.ctx.controller.home.init)
       
-router.register('[-b | --blue] <-a | --add>', async (ctx, next) => {
-  console.log(ctx.argv.query)
-})
+router.register('replace <file> [...otherFiles]', app.ctx.controller.home.replace)
 router.register('new <template> <name> [-a | --action]', 'init the template of project and relate the project to the remote repository')
 router.register('add <template> <name> [-a | --action]', 'init the template of project and relate the project to the remote repository')
 router.register('install <template> <name> [-a | --action]', 'init the template of project and relate the project to the remote repository')
@@ -37,4 +35,5 @@ app.ctx.emitter.on('illegality:option', function(command, option) {
   console.log('............')
   console.log('............')
   // console.log(command)
+  console.log(app.ctx.config)
 })

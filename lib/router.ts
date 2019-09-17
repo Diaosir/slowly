@@ -16,7 +16,7 @@ function getIllegalityRouteOption(ctx: ContextInterface, comandOptions?: Array<R
   let illegalityRouteOptions: string[] = [];
   Object.keys(query).forEach(queryName => {
     let targetOption = comandOptions.filter(option => {
-      return [option.name, option.summary_name].includes(queryName)
+      return [option.name, option.summary_name].indexOf(queryName) > -1
     })
     targetOption.length === 0 && illegalityRouteOptions.push(`'${Argv.getOriginalOptionNameByQueryName(originalArgv, queryName)}'`)
   })

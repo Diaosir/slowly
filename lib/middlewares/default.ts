@@ -42,9 +42,7 @@ export async function GlobalCheckCommand(ctx: ContextInterface, next: Function) 
 export async function GlobEmptyArgv(ctx: ContextInterface, next: Function) {
     await next()
     const { argv: { query, params}} = ctx;
-    const emptyOption = Object.keys(query).filter(key => {
-        return query[key] !== undefined;
-    })
+    const emptyOption = Object.keys(query);
     if (params.length === 0 && emptyOption.length === 0) {
         Log.warning(`there is not any command and option, See '${ctx.name} --help'`)
     }

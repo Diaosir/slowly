@@ -5,6 +5,7 @@ const load_1 = require("./core/load");
 const compose_1 = require("./utils/compose");
 const router_1 = require("./router");
 const default_1 = require("./middlewares/default");
+const path = require("path");
 const router = new router_1.default();
 class App {
     constructor(option) {
@@ -12,13 +13,13 @@ class App {
         this.middlewares = [];
         if (option.es6) {
             require('babel-register')({
-                plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
+                plugins: ['babel-plugin-transform-es2015-modules-commonjs']
             });
         }
         this.option = option;
         this.argv = new argv_1.default();
         this.cwd = `${option.dirname || __dirname}`;
-        this.config = {};
+        this.config = load_1.default.loadAllConfig(path.join(this.cwd, '/config/'));
         this.ctx = this.createContext();
         this.baseLoad = new load_1.default(this.ctx);
         Object.keys(default_1.default).forEach((name) => {

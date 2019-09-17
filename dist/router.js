@@ -17,7 +17,7 @@ function getIllegalityRouteOption(ctx, comandOptions) {
     let illegalityRouteOptions = [];
     Object.keys(query).forEach(queryName => {
         let targetOption = comandOptions.filter(option => {
-            return [option.name, option.summary_name].includes(queryName);
+            return [option.name, option.summary_name].indexOf(queryName) > -1;
         });
         targetOption.length === 0 && illegalityRouteOptions.push(`'${argv_1.default.getOriginalOptionNameByQueryName(originalArgv, queryName)}'`);
     });

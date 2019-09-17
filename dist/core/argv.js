@@ -86,7 +86,7 @@ class Argv {
     static getOriginalOptionNameByQueryName(originalArgv, queryName) {
         const matchArgv = originalArgv.filter(argv => {
             const querys = [`-${queryName}`, `--${queryName}`];
-            return querys.includes(argv);
+            return querys.indexOf(argv) > -1;
         });
         return matchArgv[0] || queryName;
     }

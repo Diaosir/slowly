@@ -90,7 +90,7 @@ export default class Argv implements ArgvInterface {
    public static getOriginalOptionNameByQueryName(originalArgv: Array<string>, queryName: string) {
     const matchArgv = originalArgv.filter(argv => {
       const querys: string[] = [`-${queryName}`, `--${queryName}`]
-      return querys.includes(argv);
+      return querys.indexOf(argv) > -1;
     })
     return matchArgv[0] || queryName;
   }

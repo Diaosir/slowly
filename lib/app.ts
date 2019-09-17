@@ -5,7 +5,7 @@ import { AppOptionInterface, ContextInterface} from './interface/type'
 import { compose } from './utils/compose'
 import Router from './router';
 import defaultMiddlewares from './middlewares/default';
-
+import * as path from 'path'
 const router = new Router()
 
 class App {
@@ -24,14 +24,14 @@ class App {
       require('babel-register')
       (
         {
-          plugins: ['babel-plugin-transform-es2015-modules-commonjs'],
+          plugins: ['babel-plugin-transform-es2015-modules-commonjs']
         }
       )
     }
     this.option = option;
     this.argv = new Argv();
     this.cwd = `${option.dirname || __dirname}`;
-    this.config = {};
+    this.config = Load.loadAllConfig(path.join(this.cwd, '/config/'));
     this.ctx = this.createContext();
     this.baseLoad = new Load(this.ctx);
     Object.keys(defaultMiddlewares).forEach((name: any) => {

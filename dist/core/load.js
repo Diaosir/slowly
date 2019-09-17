@@ -67,5 +67,14 @@ class Load {
     static getOriginalClass(path) {
         return require(path).default || require(path);
     }
+    static loadAllConfig(configFolder) {
+        const configGlob = glob.sync(path.join(configFolder, '*.js'));
+        let config = {};
+        configGlob.forEach(filepath => {
+            const fileContext = require(filepath).default || require(filepath);
+            config = Object.assign({}, config, fileContext);
+        });
+        return config;
+    }
 }
 exports.default = Load;
