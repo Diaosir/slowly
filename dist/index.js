@@ -1,7 +1,5 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Decorator = require("./decorator");
-exports.Decorator = Decorator;
+// import * as Decorator from './decorator';
 var app_1 = require("./app");
 exports.App = app_1.default;
 var command_1 = require("./command");

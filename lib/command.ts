@@ -4,7 +4,7 @@ export default class Command {
   public options: Array<string>;
   public onHelp: Function;
   public ctx: any;
-  constructor(ctx) {
+  constructor() {
     // console.log(this)
     // console.log(this.commands)
     // console.log(this.onHelp())

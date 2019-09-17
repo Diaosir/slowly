@@ -1,11 +1,11 @@
-import { RouteConfigInterfase, ContextInterface, RouteOptionRuleEnum } from '../interface/type'
+import { RouteOptionRuleEnum, ContextInterface} from '../interface/type'
 import * as Log from '../utils/log'
 import { EMPTY_COMMAND_NAME } from '../utils/contant'
-function isGlobalHelp(ctx) {
-  const { argv: { params, query }, routes } = ctx;
+function isGlobalHelp(ctx: ContextInterface) {
+  const { argv: { params, query } } = ctx;
   return  params.length === 0 && (query.help || query.h)
 }
-export default async function GlobalHelp (ctx, next) {
+export default async function GlobalHelp (ctx: ContextInterface, next: Function) {
   await next();
   const { routes } = ctx;
   if (isGlobalHelp(ctx)) { // handle help

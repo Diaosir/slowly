@@ -4,7 +4,6 @@
 /node_modules
 /build
 # production
-/dist
 /version
 # misc
 .DS_Store

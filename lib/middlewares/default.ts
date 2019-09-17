@@ -1,15 +1,15 @@
-import { RouteConfigInterfase, ContextInterface, RouteOptionRuleEnum } from '../interface/type'
+import { ContextInterface } from '../interface/type'
 import { EMPTY_COMMAND_NAME } from '../utils/contant'
 import * as Log from '../utils/log'
 import Routers from '../router'
+import GlobalHelp from './globalHelp'
 const leven = require('leven');
 
-function isGlobalVersion(ctx) {
+function isGlobalVersion(ctx: ContextInterface) {
     const { argv: { query } } = ctx;
     return query.version || query.v
 }
-export { default as GlobalHelp } from './globalHelp'
-export async function GlobalVesion(ctx, next) {
+export async function GlobalVesion(ctx: ContextInterface, next: Function) {
     const { version } = ctx;
     if (isGlobalVersion(ctx)) {
         console.log(version);
@@ -24,10 +24,10 @@ export async function GlobalVesion(ctx, next) {
  * @param {*} ctx
  * @param {*} next
  */
-export async function GlobalCheckCommand(ctx, next) {
+export async function GlobalCheckCommand(ctx: ContextInterface, next: Function) {
     await next();
     const { argv: { params }, routes} = ctx;
-    const [command, ...resetParams] = params;
+    const [ command ] = params;
     const hasRegisterCommandList = Object.keys(routes).filter(item => item !== EMPTY_COMMAND_NAME);
     if (command !== undefined && !Routers.getHandlerByCommandName(command, routes)) {
         console.log(`${ctx.name}: '${command}' is not a command, See '${ctx.name} --help'`)
@@ -39,7 +39,7 @@ export async function GlobalCheckCommand(ctx, next) {
         }
     }
 }
-export async function GlobEmptyArgv(ctx, next) {
+export async function GlobEmptyArgv(ctx: ContextInterface, next: Function) {
     await next()
     const { argv: { query, params}} = ctx;
     const emptyOption = Object.keys(query).filter(key => {
@@ -49,3 +49,10 @@ export async function GlobEmptyArgv(ctx, next) {
         Log.warning(`there is not any command and option, See '${ctx.name} --help'`)
     }
 }
+
+export default [
+    GlobEmptyArgv,
+    GlobalVesion,
+    GlobalCheckCommand,
+    GlobalHelp
+]

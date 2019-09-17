@@ -1,7 +1,6 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Command {
-    constructor(ctx) {
+    constructor() {
         // console.log(this)
         // console.log(this.commands)
         // console.log(this.onHelp())

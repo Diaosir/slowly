@@ -1,16 +1,12 @@
 #!/usr/bin/env node
 "use strict";
-process.cwd = function() {
-  // return 'G:\\github\\slowly\\test\\bin'
-  return '/Users/fengzhihao/Projects/github/slowly/test/bin'
-}
-const { App, Router } = require('../../dist/index');
-
+const { App, Router } = require('../../index');
 const router = new Router()
 const app = new App({
   es6: true,
   version: '1.0.0',
-  name: 'test-slowly'
+  name: 'test-slowly',
+  dirname: '/Users/fengzhihao/Projects/github/slowly/test/bin'
 });
 router.register(`init <template>`, 'init the template of project and relate the project to the remote repository')
       .alias('i')

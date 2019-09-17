@@ -1,4 +1,3 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const contant_1 = require("../utils/contant");
 const path = require('path');
@@ -86,7 +85,8 @@ class Argv {
      */
     static getOriginalOptionNameByQueryName(originalArgv, queryName) {
         const matchArgv = originalArgv.filter(argv => {
-            return [`-${queryName}`, `--${queryName}`].includes(argv);
+            const querys = [`-${queryName}`, `--${queryName}`];
+            return querys.includes(argv);
         });
         return matchArgv[0] || queryName;
     }

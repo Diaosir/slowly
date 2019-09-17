@@ -1,5 +1,5 @@
 export interface AppMiddleware {
-
+  
 }
 export interface ContextInterface {
   cwd: string;
@@ -18,7 +18,8 @@ export interface ContextInterface {
   name?: string;
   middleware?: {
     [key: string]: any
-  }
+  };
+  [key: string]: any
 }
 export interface ArgvInterface {
   originalArgv: Array<string>;
@@ -66,6 +67,7 @@ export interface AppOptionInterface {
   es6?: boolean;
   version: string; 
   name: string;
+  dirname: string;
 }
 
 export interface EventEmitter{

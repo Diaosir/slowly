@@ -1,6 +1,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
-class Service {
+class Exec {
     constructor() {
     }
 }
-exports.default = Service;
+exports.default = Exec;

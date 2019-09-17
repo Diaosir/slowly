@@ -1,12 +1,3 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const compose_1 = require("./utils/compose");
 const type_1 = require("./interface/type");
@@ -22,7 +13,7 @@ const argv_1 = require("./core/argv");
  * @returns {Array<string>}
  */
 function getIllegalityRouteOption(ctx, comandOptions) {
-    let { argv: { query, originalArgv }, argv } = ctx;
+    let { argv: { query, originalArgv } } = ctx;
     let illegalityRouteOptions = [];
     Object.keys(query).forEach(queryName => {
         let targetOption = comandOptions.filter(option => {
@@ -147,33 +138,29 @@ class Routers {
             handler.fn(ctx);
         }
     }
-    before(ctx, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { argv: { params, query } } = ctx;
-            const command = params[0] || contant_1.EMPTY_COMMAND_NAME;
-            const handler = Routers.getHandlerByCommandName(command, this.handlers);
-            const { options } = handler;
-            if (query.help || query.h) { //on - help
-                if (command !== contant_1.EMPTY_COMMAND_NAME) {
-                    this.generateAutoHelp(handler);
-                    ctx.emitter.emit('command:help', command);
-                }
-                return;
+    async before(ctx, next) {
+        const { argv: { params, query } } = ctx;
+        const command = params[0] || contant_1.EMPTY_COMMAND_NAME;
+        const handler = Routers.getHandlerByCommandName(command, this.handlers);
+        const { options } = handler;
+        if (query.help || query.h) { //on - help
+            if (command !== contant_1.EMPTY_COMMAND_NAME) {
+                this.generateAutoHelp(handler);
+                ctx.emitter.emit('command:help', command);
             }
-            const { verify, message } = this.verifyOption(ctx, options);
-            if (verify) {
-                yield next();
-            }
-            else {
-                ctx.emitter.emit('verifyOption:fail', command, options);
-                Log.error(message);
-            }
-        });
+            return;
+        }
+        const { verify, message } = this.verifyOption(ctx, options);
+        if (verify) {
+            await next();
+        }
+        else {
+            ctx.emitter.emit('verifyOption:fail', command, options);
+            Log.error(message);
+        }
     }
-    after(ctx, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log(ctx);
-        });
+    async after(ctx) {
+        console.log(ctx);
     }
     /**
      *
@@ -203,14 +190,12 @@ class Routers {
      */
     routes() {
         const _this = this;
-        return function (ctx, next) {
-            return __awaiter(this, void 0, void 0, function* () {
-                yield next();
-                ctx.routes = Object.assign({}, ctx.routes, _this.handlers);
-                // console.log(ctx)
-                // Todo 无命令输入，且没有注册option
-                _this.match(ctx);
-            });
+        return async function (ctx, next) {
+            await next();
+            ctx.routes = Object.assign({}, ctx.routes, _this.handlers);
+            // console.log(ctx)
+            // Todo 无命令输入，且没有注册option
+            _this.match(ctx);
         };
     }
     alias(aliasName) {
@@ -238,7 +223,7 @@ class Routers {
         }
         return this;
     }
-    option(name, description, handler) {
+    option(name, description) {
         const commandHndler = this.handlers[this.currentRouteName];
         if (commandHndler) {
             const { options } = commandHndler;

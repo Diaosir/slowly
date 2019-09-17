@@ -14,7 +14,7 @@ export default class Load {
     }
     dynamicLoad(ctx: ContextInterface, key: string, glob: Array<string>, autoInstantiation: boolean = true) {
         const _this = this;
-        let object = {};
+        let object: { [key: string] : any} = {};
         try {
             glob.map((filePath) => {
                 const { name }  = path.parse(filePath)
@@ -31,7 +31,7 @@ export default class Load {
         }
         if (!!key) {
             ctx[key] = new Proxy(object, {
-                get: function(target: Object, name: string) {
+                get: function(target: {[key: string]: any}, name: string) {
                     if (typeof target[name] === 'string') {
                         const originalClass = Load.getOriginalClass(target[name])
                         if (autoInstantiation) {
@@ -63,7 +63,7 @@ export default class Load {
     public lazyLoad() {
         // console.log(this.lazyLoadStack)
     }
-    public static getOriginalClass(path){
+    public static getOriginalClass(path: string){
         return require(path).default || require(path);
     }
 }

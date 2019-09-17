@@ -1,4 +1,3 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function compose(middlewares) {
     if (!Array.isArray(middlewares))

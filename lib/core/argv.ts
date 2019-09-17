@@ -34,7 +34,7 @@ export default class Argv implements ArgvInterface {
    * @param name 
    * @param value 
    */
-  setObject(object, name: string, queryValue: any) {
+  setObject(object: {[key: string]: any}, name: string, queryValue: any) {
     const value = parseQueryValue(queryValue)
     if (object[name] === undefined) {
       object[name] = value;
@@ -89,7 +89,8 @@ export default class Argv implements ArgvInterface {
    */
    public static getOriginalOptionNameByQueryName(originalArgv: Array<string>, queryName: string) {
     const matchArgv = originalArgv.filter(argv => {
-      return [`-${queryName}`, `--${queryName}`].includes(argv);
+      const querys: string[] = [`-${queryName}`, `--${queryName}`]
+      return querys.includes(argv);
     })
     return matchArgv[0] || queryName;
   }

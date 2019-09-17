@@ -1,19 +1,13 @@
 import Context from './utils/context'
 import Argv from './core/argv';
 import Load from './core/load';
-import { AppMiddleware, AppOptionInterface, ContextInterface} from './interface/type'
-import * as is from './utils/is'
+import { AppOptionInterface, ContextInterface} from './interface/type'
 import { compose } from './utils/compose'
 import Router from './router';
-import * as defaultMiddlewares from './middlewares/default';
-const ora = require('ora');
- 
- 
-// setTimeout(() => {
-//     spinner.color = 'yellow';
-//     spinner.text = 'Loading rainbows';
-// }, 1000);
+import defaultMiddlewares from './middlewares/default';
+
 const router = new Router()
+
 class App {
   public name: string = '';
   public argv: any;
@@ -22,15 +16,10 @@ class App {
   public cwd: string;
   public allCommands: any;
   public baseLoad: any;
-  public middlewares: Array<AppMiddleware> = [];
+  public middlewares: Array<Function> = [];
   public option: AppOptionInterface
   
   constructor(option: AppOptionInterface) {
-    // this.argv = require('yargs')
-    // .usage('Usage: $0 -w [num] -h [num]')
-    // .demandOption(['w','h'])
-    // .argv;
-    // const spinner = ora('slowly start').start();
     if (option.es6) {
       require('babel-register')
       (
@@ -41,12 +30,11 @@ class App {
     }
     this.option = option;
     this.argv = new Argv();
-    this.cwd = process.cwd();
-    //Todo
+    this.cwd = `${option.dirname || __dirname}`;
     this.config = {};
     this.ctx = this.createContext();
     this.baseLoad = new Load(this.ctx);
-    Object.keys(defaultMiddlewares).forEach(name => {
+    Object.keys(defaultMiddlewares).forEach((name: any) => {
       this.use(defaultMiddlewares[name]);
     })
     this.use(router.routes())

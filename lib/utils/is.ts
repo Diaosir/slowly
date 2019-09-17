@@ -18,6 +18,8 @@ export function isMatchingPattern(value: string, pattern: RegExp | string): bool
     return (pattern as RegExp).test(value);
   } else if (typeof pattern === 'string') {
     return includes(value, pattern);
+  } else {
+    return false
   }
 }
 

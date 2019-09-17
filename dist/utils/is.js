@@ -1,4 +1,3 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const includes = function (target, search) {
     if (search.length > target.length) {
@@ -22,6 +21,9 @@ function isMatchingPattern(value, pattern) {
     }
     else if (typeof pattern === 'string') {
         return includes(value, pattern);
+    }
+    else {
+        return false;
     }
 }
 exports.isMatchingPattern = isMatchingPattern;

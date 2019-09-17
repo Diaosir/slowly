@@ -4,7 +4,6 @@ import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_ENV_REG, EMPTY
 import * as is from './utils/is'
 import * as Log from './utils/log'
 import Argv from './core/argv'
-import Json from './utils/json'
 /**
  *
  * find Illegality Route Option
@@ -13,8 +12,8 @@ import Json from './utils/json'
  * @returns {Array<string>}
  */
 function getIllegalityRouteOption(ctx: ContextInterface, comandOptions?: Array<RouteOptionInterface>): Array<string> {
-  let { argv: { query, originalArgv}, argv } = ctx;
-  let illegalityRouteOptions = [];
+  let { argv: { query, originalArgv} } = ctx;
+  let illegalityRouteOptions: string[] = [];
   Object.keys(query).forEach(queryName => {
     let targetOption = comandOptions.filter(option => {
       return [option.name, option.summary_name].includes(queryName)
@@ -36,7 +35,7 @@ export default class Routers {
     command: string;
     options: Array<RouteOptionInterface>
   }{
-    function matchReg(search: string, reg, optionName: string, getRegIndex: number = 1) {
+    function matchReg(search: string, reg: RegExp, optionName: string, getRegIndex: number = 1) {
       const matchResult = search.match(reg);
       if (matchResult) {
         return {
@@ -158,7 +157,7 @@ export default class Routers {
       handler.fn(ctx);
     }
   }
-  async before(ctx, next) {
+  async before(ctx: ContextInterface, next: Function) {
     const { argv: { params, query }} = ctx;
     const command = params[0] || EMPTY_COMMAND_NAME;
     const handler = Routers.getHandlerByCommandName(command, this.handlers);
@@ -178,7 +177,7 @@ export default class Routers {
       Log.error(message);
     }
   }
-  async after(ctx, next) {
+  async after(ctx: ContextInterface) {
     console.log(ctx)
   }
   /**
@@ -186,7 +185,7 @@ export default class Routers {
    * 注册
    * @memberof Routers
    */
-  register(path, ...args) {
+  register(path: string, ...args: any[]) {
     const config = args.filter(arg => is.isObject(arg))[0] || {};
     const description = args.filter(arg => is.isString(arg))[0] || ''
     const middlerwares = args.filter(arg => typeof arg === 'function');
@@ -209,7 +208,7 @@ export default class Routers {
    */
   routes() {
     const _this = this;
-    return async function (ctx: ContextInterface, next) {
+    return async function (ctx: ContextInterface, next: Function) {
       await next();
       ctx.routes = {
         ...ctx.routes,
@@ -235,7 +234,7 @@ export default class Routers {
    * @returns
    * @memberof Routers
    */
-  public action(...middlerwares) {
+  public action(...middlerwares: Array<Function>) {
     const fn = compose([this.before.bind(this), ...middlerwares, this.after.bind(this)]);
     if (this.handlers[this.currentRouteName]) {
       this.handlers[this.currentRouteName] = {
@@ -254,7 +253,7 @@ export default class Routers {
     }
     return this;
   }
-  public option(name: string, description?: string, handler?: Function) {
+  public option(name: string, description?: string) {
     const commandHndler = this.handlers[this.currentRouteName]
     if (commandHndler) {
       const { options } = commandHndler;
@@ -268,7 +267,7 @@ export default class Routers {
     }
     return this;
   }
-  public static getHandlerByCommandName(commandName: string, commandHandlers) {
+  public static getHandlerByCommandName(commandName: string, commandHandlers: { [key: string]: RouteConfigInterfase}) {
     if (commandHandlers[commandName]) {
       return commandHandlers[commandName]
     }

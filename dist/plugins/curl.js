@@ -1,6 +1,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
-class Service {
+class Curl {
     constructor() {
     }
+    async get() {
+        return 1;
+    }
 }
-exports.default = Service;
+exports.default = Curl;

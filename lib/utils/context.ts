@@ -23,7 +23,7 @@ export default class Context implements ContextInterface {
    * @param {*} app 
    * @memberof Context
    */
-  constructor(app?: any) {
+  constructor() {
     // this.app = app;
     // this.config = app.config;
   }
