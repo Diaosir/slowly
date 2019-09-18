@@ -1,20 +1,23 @@
 #!/usr/bin/env node
 "use strict";
 const { App, Router } = require('../../index');
+const path = require('path')
+console.log(process.cwd())
 const router = new Router()
 const app = new App({
   es6: true,
   version: '1.0.0',
   name: 'test-slowly',
-  dirname: '/Users/fengzhihao/Projects/github/slowly/test/bin'
+  dirname: path.join(process.cwd(), '/test/bin')
 });
+console.log()
 router.register(`init <template>`, 'init the template of project and relate the project to the remote repository')
       .alias('i')
       .usage('init <template> [-q | --quiet] <-a | --action>')
       .option('[-q | --quiet]', 'quiet is required', 'dd')
       .option('<-a | --action>', 'quiet is required', 'dd')
       .option('<-n | --name>', 'name is required', 'dd')
-      .action(app.ctx.middleware.inquirer(), app.ctx.controller.home.init)
+      .action(app.ctx.controller.home.init)
       
 router.register('replace <file> [...otherFiles]', app.ctx.controller.home.replace)
 router.register('new <template> <name> [-a | --action]', 'init the template of project and relate the project to the remote repository')
