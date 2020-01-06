@@ -16,11 +16,3 @@ describe('argv test', () => {
     expect(argv.params).toContain('name')
   })
 })
-
-function earnings(amount, year) {
-  let sum = 0;
-  for( let i = year; i >=1; i --) {
-    sum += amount * Math.pow(1 + 0.0545, i);
-  }
-  return sum
-}

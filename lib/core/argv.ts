@@ -9,7 +9,7 @@ export default class Argv implements ArgvInterface {
   public name: string;
   public execPath: string;
   public query: {
-    [propName: string]: any;
+    [prop: string]: any;
   }
   constructor(argv?: Array<string>) {
     this.originalArgv = argv || process.argv;

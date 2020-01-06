@@ -1,15 +1,16 @@
+
 export interface AppMiddleware {
   
 }
 export interface ContextInterface {
   cwd: string;
-  service?: String | {
+  service?: {
     [key: string]: any
   },
   command?: {
     [key: string]: any
   },
-  argv: any,
+  argv: ArgvInterface,
   routes: {
     [key: string]: RouteConfigInterfase
   }
@@ -19,7 +20,10 @@ export interface ContextInterface {
   middleware?: {
     [key: string]: any
   };
-  [key: string]: any
+  controller: {
+    [key: string]: any
+  },
+  [key: string]: any;
 }
 export interface ArgvInterface {
   originalArgv: Array<string>;
@@ -67,7 +71,7 @@ export interface AppOptionInterface {
   es6?: boolean;
   version: string; 
   name: string;
-  dirname: string;
+  userConfigFile?: string; 
 }
 
 export interface EventEmitter{

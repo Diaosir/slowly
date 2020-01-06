@@ -3,11 +3,8 @@ import Argv from './core/argv';
 import Load from './core/load';
 import { AppOptionInterface, ContextInterface} from './interface/type'
 import { compose } from './utils/compose'
-import Router from './router';
 import defaultMiddlewares from './middlewares/default';
 import * as path from 'path'
-const router = new Router()
-
 class App {
   public name: string = '';
   public argv: any;
@@ -17,8 +14,7 @@ class App {
   public allCommands: any;
   public baseLoad: any;
   public middlewares: Array<Function> = [];
-  public option: AppOptionInterface
-  
+  public option: AppOptionInterface;
   constructor(option: AppOptionInterface) {
     if (option.es6) {
       require('babel-register')
@@ -28,20 +24,20 @@ class App {
         }
       )
     }
+    const rootModule = this._getRootParentModule(module);
     this.option = option;
     this.argv = new Argv();
-    this.cwd = `${option.dirname || __dirname}`;
-    this.config = Load.loadAllConfig(path.join(this.cwd, '/config/'));
+    this.cwd = path.dirname(rootModule.filename);
+    this.config = Load.loadAllConfig(path.join(this.cwd, '/config/'), option.userConfigFile);
     this.ctx = this.createContext();
     this.baseLoad = new Load(this.ctx);
     Object.keys(defaultMiddlewares).forEach((name: any) => {
       this.use(defaultMiddlewares[name]);
     })
-    this.use(router.routes())
+    console.log(this.cwd)
     setTimeout(() => {
       this.callback();
     }, 10)
-    
   }
   use(fn: Function) {
     if (typeof fn !== 'function') {
@@ -66,5 +62,13 @@ class App {
   help() {
   }
   usage() {}
+  private _getRootParentModule(module: any): any{
+    
+    if(!module.parent) {
+      return module;
+    } else {
+      return this._getRootParentModule(module.parent)
+    }
+  }
 }
 export default App;

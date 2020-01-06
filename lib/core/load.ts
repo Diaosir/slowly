@@ -1,6 +1,7 @@
 const glob = require('glob');
 const path = require('path')
 import { ContextInterface } from '../interface/type';
+import { isString } from 'util';
 const FILTER_FUNCTION: Array<string> = ['constructor']
 export default class Load {
     public commandObjectList: any;
@@ -66,18 +67,25 @@ export default class Load {
     public static getOriginalClass(path: string){
         return require(path).default || require(path);
     }
-    public static loadAllConfig(configFolder: string) {
+    public static loadAllConfig(configFolder: string, userConfigFile?: string) {
         const configGlob: string[] = glob.sync(path.join(configFolder, '*.js'));
-        let config = {
-
+        if(!!userConfigFile && isString(userConfigFile)) {
+            configGlob.push(userConfigFile);
         }
-        configGlob.forEach(filepath => {
-            const fileContext = require(filepath).default || require(filepath)
-            config = {
-                ...config,
-                ...fileContext
-            }
-        })
+
+        let config = {}
+        try{
+            configGlob.forEach(filepath => {
+                const fileContext = require(filepath).default || require(filepath)
+                config = {
+                    ...config,
+                    ...fileContext
+                }
+            })
+        }catch(error) {
+            // console.error(error)
+        }
+ 
         return config
     }
 }

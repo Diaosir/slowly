@@ -1,6 +1,4 @@
 import { ContextInterface } from './interface/type'
-export default class Service {
+export default class Controller {
   public ctx: ContextInterface;
-  constructor() {
-  }
 }

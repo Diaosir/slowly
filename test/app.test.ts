@@ -1,22 +1,19 @@
-import { App, Router} from '../lib'
-process.argv = ['node', 'test-slowly', 'init', '-n', 'huangzhen', '--name=huangzhen'];
-process.execPath = '/Users/huangzhen/.nvm/versions/node/v8.4.0/bin/node'
-process.cwd = function() {
-    return 'G:\\github\\slowly\\test\\bin'
-    // return '/Users/fengzhihao/Projects/github/slowly/test'
-}
-const router = new Router()
-const app = new App();
-
+import { App, Router } from '../lib'
+import commandHelper from './helper/command'
 describe('app test', () => {
-    
     test('router test',  async done => {
-        router.register('init <dir> [...otherDirs] [-q | --quiet] <-a | --action>', async (ctx) => {
-            console.log(ctx)
-            expect(1+1).toBe(2)
+        commandHelper('test-slowly init template -q true --action=go')
+        const router = new Router()
+        const app = new App({
+            version: '1.0.0',
+            name: 'test-slowly'
+        });
+        router.register('init <dir> [...otherDirs] [-q | --quiet] <-a | --action>', async () => {
             done()
         })
         app.use(router.routes());
+    })
+    test('app -version', async () => {
         
     })
 })

@@ -18,6 +18,12 @@ export default class Context implements ContextInterface {
   public middleware?: {
     [key: string]: any
   } = {}
+  public controller: String | {
+    [key: string]: any
+  };
+  public service: String | {
+    [key: string]: any
+  };
   /**
    *Creates an instance of Context.
    * @param {*} app 
