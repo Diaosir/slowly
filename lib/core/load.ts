@@ -1,19 +1,19 @@
 const glob = require('glob');
 const path = require('path')
-import { ContextInterface } from '../interface/type';
+import { IContext } from '../interface/type';
 import { isString } from 'util';
 const FILTER_FUNCTION: Array<string> = ['constructor']
 export default class Load {
     public commandObjectList: any;
     public lazyLoadStack: Array<any> = [];
-    constructor(ctx: ContextInterface) {
+    constructor(ctx: IContext) {
         this.dynamicLoad(ctx, 'service', glob.sync(path.join(ctx.cwd, '/service/*.{js,ts}')));
         this.dynamicLoad(ctx, 'controller', glob.sync(path.join(ctx.cwd, '/controller/*.{js,ts}')));
         this.dynamicLoad(ctx, 'middleware', glob.sync(path.join(ctx.cwd, '/middleware/*.{js,ts}')), false);
         this.dynamicLoad(ctx, null, glob.sync(path.join(__dirname, '../plugins/**/*.{js,ts}')));
         this.lazyLoad();
     }
-    dynamicLoad(ctx: ContextInterface, key: string, glob: Array<string>, autoInstantiation: boolean = true) {
+    dynamicLoad(ctx: IContext, key: string, glob: Array<string>, autoInstantiation: boolean = true) {
         const _this = this;
         let object: { [key: string] : any} = {};
         try {
@@ -68,7 +68,7 @@ export default class Load {
         return require(path).default || require(path);
     }
     public static loadAllConfig(configFolder: string, userConfigFile?: string) {
-        const configGlob: string[] = glob.sync(path.join(configFolder, '*.js'));
+        const configGlob: string[] = glob.sync(path.join(configFolder, '*.{js,ts}'));
         if(!!userConfigFile && isString(userConfigFile)) {
             configGlob.push(userConfigFile);
         }
@@ -83,7 +83,7 @@ export default class Load {
                 }
             })
         }catch(error) {
-            // console.error(error)
+            console.error(error)
         }
  
         return config

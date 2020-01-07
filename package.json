@@ -3,7 +3,8 @@
   "version": "1.0.3",
   "description": "",
   "scripts": {
-    "test": "jest  --watchAll --coverage"
+    "test": "jest  --watchAll --coverage",
+    "build": "tsc -d"
   },
   "repository": {
     "type": "git"

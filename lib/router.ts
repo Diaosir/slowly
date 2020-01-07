@@ -1,5 +1,5 @@
 import { compose } from './utils/compose'
-import { ContextInterface, RouteOptionInterface, RouteOptionRuleEnum, RouteConfigInterfase} from './interface/type'
+import { IContext, IRouteOption, RouteOptionRuleEnum, IRouteConfig} from './interface/type'
 import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_ENV_REG, EMPTY_COMMAND_NAME} from './utils/contant'
 import * as is from './utils/is'
 import * as Log from './utils/log'
@@ -8,10 +8,10 @@ import Argv from './core/argv'
  *
  * find Illegality Route Option
  * @param {Object} [query]
- * @param {Array<RouteOptionInterface>} [comandOptions]
+ * @param {Array<IRouteOption>} [comandOptions]
  * @returns {Array<string>}
  */
-function getIllegalityRouteOption(ctx: ContextInterface, comandOptions?: Array<RouteOptionInterface>): Array<string> {
+function getIllegalityRouteOption(ctx: IContext, comandOptions?: Array<IRouteOption>): Array<string> {
   let { argv: { query, originalArgv} } = ctx;
   let illegalityRouteOptions: string[] = [];
   Object.keys(query).forEach(queryName => {
@@ -27,13 +27,13 @@ export default class Routers {
   public middlewares: any;
   public currentRouteName?: string = '';
   public handlers: {
-    [key: string]: RouteConfigInterfase;
+    [key: string]: IRouteConfig;
   } = {};
   constructor() {
   }
   public static parseRoute(route: string, config: { [key: string]: any} = {}): {
     command: string;
-    options: Array<RouteOptionInterface>
+    options: Array<IRouteOption>
   }{
     function matchReg(search: string, reg: RegExp, optionName: string, getRegIndex: number = 1) {
       const matchResult = search.match(reg);
@@ -49,13 +49,13 @@ export default class Routers {
 
       }
     }
-    // let options: Array<string|RouteOptionInterface> = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g);
+    // let options: Array<string|IRouteOption> = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g);
     let optionMatchResult = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g) || [];
     
     let commandMatchResult = route.match(/^(\w+)/) || []
     const command = commandMatchResult[0] || EMPTY_COMMAND_NAME;
-    let options:Array<RouteOptionInterface> = optionMatchResult.map((item: string) => {
-      let option: RouteOptionInterface = {
+    let options:Array<IRouteOption> = optionMatchResult.map((item: string) => {
+      let option: IRouteOption = {
         rule: RouteOptionRuleEnum.NORMAL,
         required: item[0] === '<' && item[item.length - 1] === '>',
         ...matchReg(item, ROUTE_OPTION_ONE_REG, 'summary_name'),
@@ -75,7 +75,7 @@ export default class Routers {
    *
    * @memberof Routers
    */
-  private generateAutoHelp(commandConfig: RouteConfigInterfase): void {
+  private generateAutoHelp(commandConfig: IRouteConfig): void {
     const { path, config: { onHelp }, options, usage, description } = commandConfig;
     let usageMessage = Log.getInfo('Usage', usage || path);
     let descriptionMessage = Log.getInfo('Description', description);
@@ -96,7 +96,7 @@ export default class Routers {
    * @param {*} options
    * @memberof Routers
    */
-  verifyOption(ctx: ContextInterface, comandOptions: Array<RouteOptionInterface>): {
+  verifyOption(ctx: IContext, comandOptions: Array<IRouteOption>): {
     verify: boolean;
     message: string;
   }{
@@ -149,7 +149,7 @@ export default class Routers {
    * init <dir> [...otherDirs] [-q | --quiet] <-a | --action>
    * @param ctx 
    */
-  match(ctx: ContextInterface): void {
+  match(ctx: IContext): void {
     const { argv: { params }} = ctx;
     const command = params[0] || EMPTY_COMMAND_NAME;
     const handler = Routers.getHandlerByCommandName(command, this.handlers);
@@ -157,12 +157,12 @@ export default class Routers {
       handler.fn(ctx);
     }
   }
-  async before(ctx: ContextInterface, next: Function) {
+  async before(ctx: IContext, next: Function) {
     const { argv: { params, query }} = ctx;
     const command = params[0] || EMPTY_COMMAND_NAME;
     const handler = Routers.getHandlerByCommandName(command, this.handlers);
     const { options } = handler;
-    if (query.help || query.h) { //on - help
+    if (query.help || query.h) {
       if (command !== EMPTY_COMMAND_NAME) {
         this.generateAutoHelp(handler);
         ctx.emitter.emit('command:help', command);
@@ -170,6 +170,7 @@ export default class Routers {
       return;
     }
     const { verify, message} = this.verifyOption(ctx, options);
+
     if (verify) {
       await next()
     } else {
@@ -177,7 +178,7 @@ export default class Routers {
       Log.error(message);
     }
   }
-  async after(ctx: ContextInterface) {
+  async after(ctx: IContext) {
     console.log(ctx)
   }
   /**
@@ -208,7 +209,7 @@ export default class Routers {
    */
   routes() {
     const _this = this;
-    return async function (ctx: ContextInterface, next: Function) {
+    return async function (ctx: IContext, next: Function) {
       await next();
       ctx.routes = {
         ...ctx.routes,
@@ -267,7 +268,7 @@ export default class Routers {
     }
     return this;
   }
-  public static getHandlerByCommandName(commandName: string, commandHandlers: { [key: string]: RouteConfigInterfase}) {
+  public static getHandlerByCommandName(commandName: string, commandHandlers: { [key: string]: IRouteConfig}) {
     if (commandHandlers[commandName]) {
       return commandHandlers[commandName]
     }

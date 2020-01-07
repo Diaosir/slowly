@@ -1,9 +1,9 @@
-import { ArgvInterface } from '../interface/type'
+import { IArgv } from '../interface/type'
 import { OPTION_ONE_REG, OPTION_TWO_REG } from '../utils/contant'
 const path = require('path')
 import * as is from '../utils/is'
 import { parseQueryValue } from '../utils/parsing'
-export default class Argv implements ArgvInterface {
+export default class Argv implements IArgv {
   public originalArgv: Array<string>;
   public params: Array<any>; 
   public name: string;
@@ -20,7 +20,6 @@ export default class Argv implements ArgvInterface {
     this.generateParams();
   }
   parseArgv() {
-    // console.log(process.execPath)
     if (/\b(node|iojs|electron)(\.exe)?$/.test(this.originalArgv[0])) {
       this.name = this.originalArgv[1]
     } else {

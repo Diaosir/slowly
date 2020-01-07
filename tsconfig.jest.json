@@ -1,5 +1,10 @@
 {
   "extends": "./tsconfig.json",
+  "noImplicitAny": false,
+  "noImplicitReturns": false,
+  "noImplicitUseStrict": false,
+  "noImplicitThis": false,
+  "noUnusedLocals": false,
   "compilerOptions": {
     "experimentalDecorators": true,
     "jsx": "react"

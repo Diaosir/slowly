@@ -1,21 +1,23 @@
 import Context from './utils/context'
 import Argv from './core/argv';
 import Load from './core/load';
-import { AppOptionInterface, ContextInterface} from './interface/type'
+import { IAppOption, IContext} from './interface/type'
 import { compose } from './utils/compose'
+import Router from './router';
 import defaultMiddlewares from './middlewares/default';
 import * as path from 'path'
+const router = new Router()
 class App {
   public name: string = '';
   public argv: any;
-  public ctx: ContextInterface;
+  public ctx: IContext;
   public config: any;
   public cwd: string;
   public allCommands: any;
   public baseLoad: any;
   public middlewares: Array<Function> = [];
-  public option: AppOptionInterface;
-  constructor(option: AppOptionInterface) {
+  public option: IAppOption;
+  constructor(option: IAppOption) {
     if (option.es6) {
       require('babel-register')
       (
@@ -34,7 +36,10 @@ class App {
     Object.keys(defaultMiddlewares).forEach((name: any) => {
       this.use(defaultMiddlewares[name]);
     })
-    console.log(this.cwd)
+    //default options
+    router.register('', '', async() => {}).option('[-V | --version]', 'output version')
+      .option('[-h | --help]', 'output usage information')
+    this.use(router.routes())
     setTimeout(() => {
       this.callback();
     }, 10)

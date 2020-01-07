@@ -1,15 +1,15 @@
-import { ContextInterface } from '../interface/type'
+import { IContext } from '../interface/type'
 import { EMPTY_COMMAND_NAME } from '../utils/contant'
 import * as Log from '../utils/log'
 import Routers from '../router'
 import GlobalHelp from './globalHelp'
 const leven = require('leven');
 
-function isGlobalVersion(ctx: ContextInterface) {
+function isGlobalVersion(ctx: IContext) {
     const { argv: { query } } = ctx;
-    return query.version || query.v
+    return query.version || query.v || query.V
 }
-export async function GlobalVesion(ctx: ContextInterface, next: Function) {
+export async function GlobalVesion(ctx: IContext, next: Function) {
     const { version } = ctx;
     if (isGlobalVersion(ctx)) {
         console.log(version);
@@ -24,7 +24,7 @@ export async function GlobalVesion(ctx: ContextInterface, next: Function) {
  * @param {*} ctx
  * @param {*} next
  */
-export async function GlobalCheckCommand(ctx: ContextInterface, next: Function) {
+export async function GlobalCheckCommand(ctx: IContext, next: Function) {
     await next();
     const { argv: { params }, routes} = ctx;
     const [ command ] = params;
@@ -39,7 +39,7 @@ export async function GlobalCheckCommand(ctx: ContextInterface, next: Function) 
         }
     }
 }
-export async function GlobEmptyArgv(ctx: ContextInterface, next: Function) {
+export async function GlobEmptyArgv(ctx: IContext, next: Function) {
     await next()
     const { argv: { query, params}} = ctx;
     const emptyOption = Object.keys(query);

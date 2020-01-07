@@ -2,7 +2,7 @@
 export interface AppMiddleware {
   
 }
-export interface ContextInterface {
+export interface IContext {
   cwd: string;
   service?: {
     [key: string]: any
@@ -10,9 +10,9 @@ export interface ContextInterface {
   command?: {
     [key: string]: any
   },
-  argv: ArgvInterface,
+  argv: IArgv,
   routes: {
-    [key: string]: RouteConfigInterfase
+    [key: string]: IRouteConfig
   }
   version: string;
   emitter: any;
@@ -25,7 +25,7 @@ export interface ContextInterface {
   },
   [key: string]: any;
 }
-export interface ArgvInterface {
+export interface IArgv {
   originalArgv: Array<string>;
   params: Array<any>;
   name: string;
@@ -35,7 +35,7 @@ export interface ArgvInterface {
   }
 }
 
-export interface RouteOptionInterface {
+export interface IRouteOption {
   rule?: RouteOptionRuleEnum;
   name?: string;
   required: boolean;
@@ -51,9 +51,9 @@ export enum RouteOptionRuleEnum {
   REST
 }
 
-export interface RouteConfigInterfase {
+export interface IRouteConfig {
   path: string;
-  options: Array<RouteOptionInterface>;
+  options: Array<IRouteOption>;
   fn: Function;
   description?: string;
   alias?: string;
@@ -67,7 +67,7 @@ export interface RouteConfigInterfase {
     }
   }
 }
-export interface AppOptionInterface {
+export interface IAppOption {
   es6?: boolean;
   version: string; 
   name: string;
