@@ -178,8 +178,7 @@ export default class Routers {
       Log.error(message);
     }
   }
-  async after(ctx: IContext) {
-    console.log(ctx)
+  async after(_: IContext) {
   }
   /**
    *

@@ -57,7 +57,7 @@ class App {
     ctx.config = this.config;
     ctx.cwd = this.cwd;
     ctx.version = this.option.version || '1.0.0'
-    ctx.name = this.option.name
+    ctx.name = this.option.name;
     return ctx;
   }
   callback() {

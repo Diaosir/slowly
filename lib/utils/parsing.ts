@@ -1,23 +1,23 @@
 import * as is from './is'
 /**
  * parsing query value
- * @param queryValue 
+ * @param query 
  */
-export function parseQueryValue(queryValue: string): any{
-    if(!is.isString(queryValue)) {
-        return queryValue;
+export function parseQuery(query: string): any{
+    if(!is.isString(query)) {
+        return query;
     }
-    if (queryValue.match(/^[\w_]+,([\w_]+,?)*$/)) { // is list
-        return queryValue.split(',')
+    if (query.match(/^[\w_]+,([\w_]+,?)*$/)) { // is list
+        return query.split(',')
     }
-    if (queryValue === 'true') {
+    if (query === 'true') {
         return true;
     }
-    if (queryValue == 'false') {
+    if (query == 'false') {
         return false;
     }
-    if (queryValue.match(/^\d+$/)) {
-        return parseFloat(queryValue)
+    if (query.match(/^\d+$/)) {
+        return parseFloat(query)
     }
-    return queryValue;
+    return query;
 }

@@ -1,5 +1,6 @@
 import { IContext, IArgv, IRouteConfig} from '../interface/type';
 import EventHandler from '../utils/eventHandler';
+import * as is from '../utils/is'
 export default class Context implements IContext {
   public services: {
     [propName: string]: any;
@@ -24,6 +25,17 @@ export default class Context implements IContext {
   public service: String | {
     [key: string]: any
   };
+  get query() {
+    return this.argv.query
+  }
+  set query(query: { [key: string]: any}) {
+    if(is.isObject(query)) {
+      this.argv.query = query;
+    }
+  }
+  get params() {
+    return this.argv.params
+  }
   /**
    *Creates an instance of Context.
    * @param {*} app 

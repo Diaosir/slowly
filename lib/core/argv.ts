@@ -2,7 +2,7 @@ import { IArgv } from '../interface/type'
 import { OPTION_ONE_REG, OPTION_TWO_REG } from '../utils/contant'
 const path = require('path')
 import * as is from '../utils/is'
-import { parseQueryValue } from '../utils/parsing'
+import { parseQuery } from '../utils/parsing'
 export default class Argv implements IArgv {
   public originalArgv: Array<string>;
   public params: Array<any>; 
@@ -34,7 +34,7 @@ export default class Argv implements IArgv {
    * @param value 
    */
   setObject(object: {[key: string]: any}, name: string, queryValue: any) {
-    const value = parseQueryValue(queryValue)
+    const value = parseQuery(queryValue)
     if (object[name] === undefined) {
       object[name] = value;
     } else if (is.isArray(object[name])) {

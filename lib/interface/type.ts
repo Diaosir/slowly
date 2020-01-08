@@ -23,6 +23,10 @@ export interface IContext {
   controller: {
     [key: string]: any
   },
+  query?: {
+    [key: string]: any;
+  };
+  readonly params: Array<string>;
   [key: string]: any;
 }
 export interface IArgv {
