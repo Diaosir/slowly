@@ -25,4 +25,5 @@ describe('command test', () => {
             expect(name).toBe('global')
         })
     })
+    
 })

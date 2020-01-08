@@ -72,7 +72,6 @@ export interface IRouteConfig {
   }
 }
 export interface IAppOption {
-  es6?: boolean;
   version: string; 
   name: string;
   userConfigFile?: string; 

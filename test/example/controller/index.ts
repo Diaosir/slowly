@@ -1,4 +1,5 @@
 import { Controller } from '../../../lib'
+
 export default class TestController extends Controller {
   async init() {
     this.ctx.message = 'hello world'

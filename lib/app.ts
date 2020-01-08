@@ -18,14 +18,14 @@ class App {
   public middlewares: Array<Function> = [];
   public option: IAppOption;
   constructor(option: IAppOption) {
-    if (option.es6) {
-      require('babel-register')
-      (
-        {
-          plugins: ['babel-plugin-transform-es2015-modules-commonjs']
-        }
-      )
-    }
+    // if (option.es6) {
+    //   require('babel-register')
+    //   (
+    //     {
+    //       plugins: ['babel-plugin-transform-es2015-modules-commonjs']
+    //     }
+    //   )
+    // }
     const rootModule = this._getRootParentModule(module);
     this.option = option;
     this.argv = new Argv();
