@@ -46,7 +46,7 @@ class Routers {
         let commandMatchResult = route.match(/^(\w+)/) || [];
         const command = commandMatchResult[0] || contant_1.EMPTY_COMMAND_NAME;
         let options = optionMatchResult.map((item) => {
-            let option = Object.assign(Object.assign(Object.assign(Object.assign({ rule: type_1.RouteOptionRuleEnum.NORMAL, required: item[0] === '<' && item[item.length - 1] === '>' }, matchReg(item, contant_1.ROUTE_OPTION_ONE_REG, 'summary_name')), matchReg(item, contant_1.ROUTE_OPTION_TWO_REG, 'name')), matchReg(item, contant_1.ROUTE_OPTION_ENV_REG, 'name', 2)), { description: config.description });
+            let option = Object.assign({ rule: type_1.RouteOptionRuleEnum.NORMAL, required: item[0] === '<' && item[item.length - 1] === '>' }, matchReg(item, contant_1.ROUTE_OPTION_ONE_REG, 'summary_name'), matchReg(item, contant_1.ROUTE_OPTION_TWO_REG, 'name'), matchReg(item, contant_1.ROUTE_OPTION_ENV_REG, 'name', 2), { description: config.description });
             return option;
         });
         return {
@@ -191,7 +191,7 @@ class Routers {
         const _this = this;
         return async function (ctx, next) {
             await next();
-            ctx.routes = Object.assign(Object.assign({}, ctx.routes), _this.handlers);
+            ctx.routes = Object.assign({}, ctx.routes, _this.handlers);
             // console.log(ctx)
             // Todo 无命令输入，且没有注册option
             _this.match(ctx);
@@ -199,7 +199,7 @@ class Routers {
     }
     alias(aliasName) {
         if (this.handlers[this.currentRouteName]) {
-            this.handlers[this.currentRouteName] = Object.assign(Object.assign({}, this.handlers[this.currentRouteName]), { alias: aliasName });
+            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { alias: aliasName });
         }
         return this;
     }
@@ -212,13 +212,13 @@ class Routers {
     action(...middlerwares) {
         const fn = compose_1.compose([this.before.bind(this), ...middlerwares, this.after.bind(this)]);
         if (this.handlers[this.currentRouteName]) {
-            this.handlers[this.currentRouteName] = Object.assign(Object.assign({}, this.handlers[this.currentRouteName]), { fn: fn });
+            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { fn: fn });
         }
         return this;
     }
     usage(description) {
         if (this.handlers[this.currentRouteName]) {
-            this.handlers[this.currentRouteName] = Object.assign(Object.assign({}, this.handlers[this.currentRouteName]), { usage: description });
+            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { usage: description });
         }
         return this;
     }
@@ -228,7 +228,7 @@ class Routers {
             const { options } = commandHndler;
             const { options: newOptions } = Routers.parseRoute(name, { description });
             const path = `${commandHndler.path} ${newOptions.map(item => item.search).join(' ')}`;
-            this.handlers[this.currentRouteName] = Object.assign(Object.assign({}, commandHndler), { options: options.concat(newOptions), path });
+            this.handlers[this.currentRouteName] = Object.assign({}, commandHndler, { options: options.concat(newOptions), path });
         }
         return this;
     }

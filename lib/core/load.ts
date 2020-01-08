@@ -7,10 +7,10 @@ export default class Load {
     public commandObjectList: any;
     public lazyLoadStack: Array<any> = [];
     constructor(ctx: IContext) {
-        this.dynamicLoad(ctx, 'service', glob.sync(path.join(ctx.cwd, '/service/*.{js,ts}')));
-        this.dynamicLoad(ctx, 'controller', glob.sync(path.join(ctx.cwd, '/controller/*.{js,ts}')));
-        this.dynamicLoad(ctx, 'middleware', glob.sync(path.join(ctx.cwd, '/middleware/*.{js,ts}')), false);
-        this.dynamicLoad(ctx, null, glob.sync(path.join(__dirname, '../plugins/**/*.{js,ts}')));
+        this.dynamicLoad(ctx, 'service', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/service/*.{js,ts}'))));
+        this.dynamicLoad(ctx, 'controller', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/controller/*.{js,ts}'))));
+        this.dynamicLoad(ctx, 'middleware', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/middleware/*.{js,ts}'))), false);
+        this.dynamicLoad(ctx, null, Load._filterGlobs(glob.sync(path.join(__dirname, '../plugins/**/*.{js,ts}'))));
         this.lazyLoad();
     }
     dynamicLoad(ctx: IContext, key: string, glob: Array<string>, autoInstantiation: boolean = true) {
@@ -68,11 +68,10 @@ export default class Load {
         return require(path).default || require(path);
     }
     public static loadAllConfig(configFolder: string, userConfigFile?: string) {
-        const configGlob: string[] = glob.sync(path.join(configFolder, '*.{js,ts}'));
+        const configGlob: string[] = Load._filterGlobs(glob.sync(path.join(configFolder, '*.{js,ts}')));
         if(!!userConfigFile && isString(userConfigFile)) {
             configGlob.push(userConfigFile);
         }
-
         let config = {}
         try{
             configGlob.forEach(filepath => {
@@ -83,9 +82,12 @@ export default class Load {
                 }
             })
         }catch(error) {
-            console.error(error)
         }
- 
         return config
+    }
+    private static _filterGlobs(globs: Array<string>) {
+        return globs.filter((glob) => {
+            return !glob.match(/\.d\.ts$/)
+        })
     }
 }

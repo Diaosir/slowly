@@ -6,10 +6,10 @@ const FILTER_FUNCTION = ['constructor'];
 class Load {
     constructor(ctx) {
         this.lazyLoadStack = [];
-        this.dynamicLoad(ctx, 'service', glob.sync(path.join(ctx.cwd, '/service/*.{js,ts}')));
-        this.dynamicLoad(ctx, 'controller', glob.sync(path.join(ctx.cwd, '/controller/*.{js,ts}')));
-        this.dynamicLoad(ctx, 'middleware', glob.sync(path.join(ctx.cwd, '/middleware/*.{js,ts}')), false);
-        this.dynamicLoad(ctx, null, glob.sync(path.join(__dirname, '../plugins/**/*.{js,ts}')));
+        this.dynamicLoad(ctx, 'service', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/service/*.{js,ts}'))));
+        this.dynamicLoad(ctx, 'controller', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/controller/*.{js,ts}'))));
+        this.dynamicLoad(ctx, 'middleware', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/middleware/*.{js,ts}'))), false);
+        this.dynamicLoad(ctx, null, Load._filterGlobs(glob.sync(path.join(__dirname, '../plugins/**/*.{js,ts}'))));
         this.lazyLoad();
     }
     dynamicLoad(ctx, key, glob, autoInstantiation = true) {
@@ -69,7 +69,7 @@ class Load {
         return require(path).default || require(path);
     }
     static loadAllConfig(configFolder, userConfigFile) {
-        const configGlob = glob.sync(path.join(configFolder, '*.{js,ts}'));
+        const configGlob = Load._filterGlobs(glob.sync(path.join(configFolder, '*.{js,ts}')));
         if (!!userConfigFile && util_1.isString(userConfigFile)) {
             configGlob.push(userConfigFile);
         }
@@ -77,13 +77,17 @@ class Load {
         try {
             configGlob.forEach(filepath => {
                 const fileContext = require(filepath).default || require(filepath);
-                config = Object.assign(Object.assign({}, config), fileContext);
+                config = Object.assign({}, config, fileContext);
             });
         }
         catch (error) {
-            console.error(error);
         }
         return config;
+    }
+    static _filterGlobs(globs) {
+        return globs.filter((glob) => {
+            return !glob.match(/\.d\.ts$/);
+        });
     }
 }
 exports.default = Load;
