@@ -7,4 +7,5 @@ export default class Load {
     lazyLoad(): void;
     static getOriginalClass(path: string): any;
     static loadAllConfig(configFolder: string, userConfigFile?: string): {};
+    private static _filterGlobs;
 }

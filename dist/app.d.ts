@@ -1,5 +1,6 @@
 import Context from './utils/context';
 import { IAppOption, IContext } from './interface/type';
+import curl from './utils/curl';
 declare class App {
     name: string;
     argv: any;
@@ -10,6 +11,7 @@ declare class App {
     baseLoad: any;
     middlewares: Array<Function>;
     option: IAppOption;
+    curl: typeof curl;
     constructor(option: IAppOption);
     use(fn: Function): this;
     createContext(): Context;

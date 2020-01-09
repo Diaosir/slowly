@@ -25,6 +25,7 @@ export interface IContext {
         [key: string]: any;
     };
     readonly params: Array<string>;
+    curl: (url: string, ...args: Array<any>) => Promise<any> | void;
     [key: string]: any;
 }
 export interface IArgv {

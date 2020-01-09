@@ -1,6 +1,6 @@
 import { compose } from './utils/compose'
 import { IContext, IRouteOption, RouteOptionRuleEnum, IRouteConfig} from './interface/type'
-import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_ENV_REG, EMPTY_COMMAND_NAME} from './utils/contant'
+import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_REST_REG, EMPTY_COMMAND_NAME} from './utils/contant'
 import * as is from './utils/is'
 import * as Log from './utils/log'
 import Argv from './core/argv'
@@ -40,7 +40,7 @@ export default class Routers {
       if (matchResult) {
         return {
           [optionName]: matchResult[getRegIndex],
-          rule: search.match(ROUTE_OPTION_ENV_REG) ? (matchResult[1] ? RouteOptionRuleEnum.REST : RouteOptionRuleEnum.PARAM) : RouteOptionRuleEnum.QUERY,
+          rule: search.match(ROUTE_OPTION_REST_REG) ? (matchResult[1] ? RouteOptionRuleEnum.REST : RouteOptionRuleEnum.PARAM) : RouteOptionRuleEnum.QUERY,
           // search: search.replace(/^[<\[]([\s\S]+)[>\]]$/,'$1')
           search
         }
@@ -60,7 +60,7 @@ export default class Routers {
         required: item[0] === '<' && item[item.length - 1] === '>',
         ...matchReg(item, ROUTE_OPTION_ONE_REG, 'summary_name'),
         ...matchReg(item, ROUTE_OPTION_TWO_REG, 'name'),
-        ...matchReg(item, ROUTE_OPTION_ENV_REG, 'name', 2),
+        ...matchReg(item, ROUTE_OPTION_REST_REG, 'name', 2),
         description: config.description
       }
       return option;

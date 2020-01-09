@@ -5,7 +5,6 @@ export default class Context implements IContext {
   public services: {
     [propName: string]: any;
   };
-  public ctx: any;
   public app: any;
   public config: any;
   public argv: IArgv;
@@ -36,13 +35,16 @@ export default class Context implements IContext {
   get params() {
     return this.argv.params
   }
+  get curl() {
+    return this.app.curl;
+  }
   /**
    *Creates an instance of Context.
    * @param {*} app 
    * @memberof Context
    */
-  constructor() {
-    // this.app = app;
+  constructor(app: any) {
+    this.app = app;
     // this.config = app.config;
   }
 }

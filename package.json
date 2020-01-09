@@ -1,6 +1,6 @@
 {
   "name": "slowly",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "",
   "scripts": {
     "test": "jest  --watchAll --coverage",
@@ -21,7 +21,6 @@
     "typescript-tslint-plugin": "^0.5.4"
   },
   "dependencies": {
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "babel-preset-env": "^1.7.0",
     "babel-register": "^6.26.0",
     "chalk": "^2.4.2",
@@ -29,6 +28,7 @@
     "inquirer": "^7.0.0",
     "leven": "^3.1.0",
     "ora": "^3.4.0",
-    "prettyjson": "^1.2.1"
+    "prettyjson": "^1.2.1",
+    "urllib": "^2.34.2"
   }
 }

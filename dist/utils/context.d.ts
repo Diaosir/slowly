@@ -4,7 +4,6 @@ export default class Context implements IContext {
     services: {
         [propName: string]: any;
     };
-    ctx: any;
     app: any;
     config: any;
     argv: IArgv;
@@ -28,10 +27,11 @@ export default class Context implements IContext {
         [key: string]: any;
     };
     readonly params: any[];
+    readonly curl: any;
     /**
      *Creates an instance of Context.
      * @param {*} app
      * @memberof Context
      */
-    constructor();
+    constructor(app: any);
 }

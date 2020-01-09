@@ -34,7 +34,7 @@ class Routers {
             if (matchResult) {
                 return {
                     [optionName]: matchResult[getRegIndex],
-                    rule: search.match(contant_1.ROUTE_OPTION_ENV_REG) ? (matchResult[1] ? type_1.RouteOptionRuleEnum.REST : type_1.RouteOptionRuleEnum.PARAM) : type_1.RouteOptionRuleEnum.QUERY,
+                    rule: search.match(contant_1.ROUTE_OPTION_REST_REG) ? (matchResult[1] ? type_1.RouteOptionRuleEnum.REST : type_1.RouteOptionRuleEnum.PARAM) : type_1.RouteOptionRuleEnum.QUERY,
                     // search: search.replace(/^[<\[]([\s\S]+)[>\]]$/,'$1')
                     search
                 };
@@ -46,7 +46,7 @@ class Routers {
         let commandMatchResult = route.match(/^(\w+)/) || [];
         const command = commandMatchResult[0] || contant_1.EMPTY_COMMAND_NAME;
         let options = optionMatchResult.map((item) => {
-            let option = Object.assign({ rule: type_1.RouteOptionRuleEnum.NORMAL, required: item[0] === '<' && item[item.length - 1] === '>' }, matchReg(item, contant_1.ROUTE_OPTION_ONE_REG, 'summary_name'), matchReg(item, contant_1.ROUTE_OPTION_TWO_REG, 'name'), matchReg(item, contant_1.ROUTE_OPTION_ENV_REG, 'name', 2), { description: config.description });
+            let option = Object.assign({ rule: type_1.RouteOptionRuleEnum.NORMAL, required: item[0] === '<' && item[item.length - 1] === '>' }, matchReg(item, contant_1.ROUTE_OPTION_ONE_REG, 'summary_name'), matchReg(item, contant_1.ROUTE_OPTION_TWO_REG, 'name'), matchReg(item, contant_1.ROUTE_OPTION_REST_REG, 'name', 2), { description: config.description });
             return option;
         });
         return {

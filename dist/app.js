@@ -6,11 +6,13 @@ const compose_1 = require("./utils/compose");
 const router_1 = require("./router");
 const default_1 = require("./middlewares/default");
 const path = require("path");
+const curl_1 = require("./utils/curl");
 const router = new router_1.default();
 class App {
     constructor(option) {
         this.name = '';
         this.middlewares = [];
+        this.curl = curl_1.default;
         // if (option.es6) {
         //   require('babel-register')
         //   (
@@ -45,7 +47,7 @@ class App {
         return this;
     }
     createContext() {
-        const ctx = new context_1.default();
+        const ctx = new context_1.default(this);
         ctx.argv = this.argv;
         ctx.config = this.config;
         ctx.cwd = this.cwd;

@@ -6,6 +6,7 @@ import { compose } from './utils/compose'
 import Router from './router';
 import defaultMiddlewares from './middlewares/default';
 import * as path from 'path'
+import curl from './utils/curl'
 const router = new Router()
 class App {
   public name: string = '';
@@ -17,6 +18,7 @@ class App {
   public baseLoad: any;
   public middlewares: Array<Function> = [];
   public option: IAppOption;
+  public curl = curl;
   constructor(option: IAppOption) {
     // if (option.es6) {
     //   require('babel-register')
@@ -52,7 +54,7 @@ class App {
     return this;
   }
   createContext() {
-    const ctx = new Context();
+    const ctx = new Context(this);
     ctx.argv = this.argv;
     ctx.config = this.config;
     ctx.cwd = this.cwd;

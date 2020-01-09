@@ -1,6 +1,6 @@
 {
   "name": "slowly",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "description": "",
   "scripts": {
     "test": "jest  --watchAll --coverage",
@@ -28,6 +28,7 @@
     "inquirer": "^7.0.0",
     "leven": "^3.1.0",
     "ora": "^3.4.0",
-    "prettyjson": "^1.2.1"
+    "prettyjson": "^1.2.1",
+    "urllib": "^2.34.2"
   }
 }
