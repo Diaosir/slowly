@@ -7,7 +7,6 @@ import Router from './router';
 import defaultMiddlewares from './middlewares/default';
 import * as path from 'path'
 import curl from './utils/curl'
-const router = new Router()
 class App {
   public name: string = '';
   public argv: any;
@@ -19,15 +18,8 @@ class App {
   public middlewares: Array<Function> = [];
   public option: IAppOption;
   public curl = curl;
+  public router: Router = new Router();
   constructor(option: IAppOption) {
-    // if (option.es6) {
-    //   require('babel-register')
-    //   (
-    //     {
-    //       plugins: ['babel-plugin-transform-es2015-modules-commonjs']
-    //     }
-    //   )
-    // }
     const rootModule = this._getRootParentModule(module);
     this.option = option;
     this.argv = new Argv();
@@ -39,12 +31,16 @@ class App {
       this.use(defaultMiddlewares[name]);
     })
     //default options
-    router.register('', '', async() => {}).option('[-V | --version]', 'output version')
+    this.router.register('', '', async() => {}).option('[-V | --version]', 'output version')
       .option('[-h | --help]', 'output usage information')
-    this.use(router.routes())
     setTimeout(() => {
       this.callback();
     }, 10)
+  }
+  start() {
+    if(Object.keys(this.router.handlers).length > 0) {
+      this.use(this.router.routes());
+    }
   }
   use(fn: Function) {
     if (typeof fn !== 'function') {

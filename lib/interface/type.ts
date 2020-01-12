@@ -1,3 +1,4 @@
+import App from "../app";
 
 export interface AppMiddleware {
   
@@ -15,7 +16,7 @@ export interface IContext {
     [key: string]: IRouteConfig
   }
   version: string;
-  emitter: any;
+  emitter: EventEmitter;
   name?: string;
   middleware?: {
     [key: string]: any
@@ -28,6 +29,7 @@ export interface IContext {
   };
   readonly params: Array<string>;
   curl: (url: string, ...args: Array<any>) => Promise<any> | void;
+  app: App;
   [key: string]: any;
 }
 export interface IArgv {
@@ -57,6 +59,7 @@ export enum RouteOptionRuleEnum {
 }
 
 export interface IRouteConfig {
+  name: string;
   path: string;
   options: Array<IRouteOption>;
   fn: Function;
@@ -76,6 +79,7 @@ export interface IAppOption {
   version: string; 
   name: string;
   userConfigFile?: string; 
+  useDecorator?: boolean
 }
 
 export interface EventEmitter{

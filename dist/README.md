@@ -53,7 +53,7 @@ const app = new App({
   version: '1.0.0',
   name: 'test-slowly'
 });
-
+const router = new Router()
 const { controller } = app.ctx;
 router.register('init', 'test-slowly init', async (ctx) => {
   //you code

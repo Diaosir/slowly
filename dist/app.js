@@ -1,3 +1,11 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const context_1 = require("./utils/context");
 const argv_1 = require("./core/argv");
@@ -7,20 +15,12 @@ const router_1 = require("./router");
 const default_1 = require("./middlewares/default");
 const path = require("path");
 const curl_1 = require("./utils/curl");
-const router = new router_1.default();
 class App {
     constructor(option) {
         this.name = '';
         this.middlewares = [];
         this.curl = curl_1.default;
-        // if (option.es6) {
-        //   require('babel-register')
-        //   (
-        //     {
-        //       plugins: ['babel-plugin-transform-es2015-modules-commonjs']
-        //     }
-        //   )
-        // }
+        this.router = new router_1.default();
         const rootModule = this._getRootParentModule(module);
         this.option = option;
         this.argv = new argv_1.default();
@@ -32,12 +32,16 @@ class App {
             this.use(default_1.default[name]);
         });
         //default options
-        router.register('', '', async () => { }).option('[-V | --version]', 'output version')
+        this.router.register('', '', () => __awaiter(this, void 0, void 0, function* () { })).option('[-V | --version]', 'output version')
             .option('[-h | --help]', 'output usage information');
-        this.use(router.routes());
         setTimeout(() => {
             this.callback();
         }, 10);
+    }
+    start() {
+        if (Object.keys(this.router.handlers).length > 0) {
+            this.use(this.router.routes());
+        }
     }
     use(fn) {
         if (typeof fn !== 'function') {

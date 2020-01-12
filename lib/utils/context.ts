@@ -1,11 +1,12 @@
 import { IContext, IArgv, IRouteConfig} from '../interface/type';
 import EventHandler from '../utils/eventHandler';
 import * as is from '../utils/is'
+import App from '../app'
 export default class Context implements IContext {
   public services: {
     [propName: string]: any;
   };
-  public app: any;
+  public app: App;
   public config: any;
   public argv: IArgv;
   public cwd: string;

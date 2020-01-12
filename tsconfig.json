@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
-    "noEmitHelpers": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "module": "commonjs",   //指定生成哪个模块系统代码
-    "target": "es2017",        //目标代码类型
+    "target": "es6",        //目标代码类型
     "sourceMap": false,     //用于debug   
     "rootDir":"./lib",      //仅用来控制输出的目录结构--outDir。
     "outDir":"./dist",     //重定向输出目录。   

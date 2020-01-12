@@ -155,6 +155,7 @@ export default class Routers {
     const handler = Routers.getHandlerByCommandName(command, this.handlers);
     if (handler) {
       handler.fn(ctx);
+      ctx.emitter.emit('command:*', handler.name, handler);
     }
   }
   async before(ctx: IContext, next: Function) {
@@ -194,6 +195,7 @@ export default class Routers {
     this.currentRouteName = command;
     // Json.render(options)
     this.handlers[command] = {
+      name: command,
       path,
       options,
       fn,
@@ -254,13 +256,13 @@ export default class Routers {
     return this;
   }
   public option(name: string, description?: string) {
-    const commandHndler = this.handlers[this.currentRouteName]
-    if (commandHndler) {
-      const { options } = commandHndler;
+    const commandHandler = this.handlers[this.currentRouteName]
+    if (commandHandler) {
+      const { options } = commandHandler;
       const { options: newOptions } = Routers.parseRoute(name, { description });
-      const path = `${commandHndler.path} ${newOptions.map(item => item.search).join(' ')}`
+      const path = `${commandHandler.path} ${newOptions.map(item => item.search).join(' ')}`
       this.handlers[this.currentRouteName] = {
-        ...commandHndler,
+        ...commandHandler,
         options: options.concat(newOptions),
         path
       }

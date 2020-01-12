@@ -1,5 +1,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const contant_1 = require("../utils/contant");
+// const minimist = require('minimist')
 const path = require('path');
 const is = require("../utils/is");
 const parsing_1 = require("../utils/parsing");

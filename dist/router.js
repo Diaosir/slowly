@@ -1,3 +1,11 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const compose_1 = require("./utils/compose");
 const type_1 = require("./interface/type");
@@ -138,28 +146,32 @@ class Routers {
             handler.fn(ctx);
         }
     }
-    async before(ctx, next) {
-        const { argv: { params, query } } = ctx;
-        const command = params[0] || contant_1.EMPTY_COMMAND_NAME;
-        const handler = Routers.getHandlerByCommandName(command, this.handlers);
-        const { options } = handler;
-        if (query.help || query.h) {
-            if (command !== contant_1.EMPTY_COMMAND_NAME) {
-                this.generateAutoHelp(handler);
-                ctx.emitter.emit('command:help', command);
+    before(ctx, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { argv: { params, query } } = ctx;
+            const command = params[0] || contant_1.EMPTY_COMMAND_NAME;
+            const handler = Routers.getHandlerByCommandName(command, this.handlers);
+            const { options } = handler;
+            if (query.help || query.h) {
+                if (command !== contant_1.EMPTY_COMMAND_NAME) {
+                    this.generateAutoHelp(handler);
+                    ctx.emitter.emit('command:help', command);
+                }
+                return;
             }
-            return;
-        }
-        const { verify, message } = this.verifyOption(ctx, options);
-        if (verify) {
-            await next();
-        }
-        else {
-            ctx.emitter.emit('verifyOption:fail', command, options);
-            Log.error(message);
-        }
+            const { verify, message } = this.verifyOption(ctx, options);
+            if (verify) {
+                yield next();
+            }
+            else {
+                ctx.emitter.emit('verifyOption:fail', command, options);
+                Log.error(message);
+            }
+        });
     }
-    async after(_) {
+    after(_) {
+        return __awaiter(this, void 0, void 0, function* () {
+        });
     }
     /**
      *
@@ -189,12 +201,14 @@ class Routers {
      */
     routes() {
         const _this = this;
-        return async function (ctx, next) {
-            await next();
-            ctx.routes = Object.assign({}, ctx.routes, _this.handlers);
-            // console.log(ctx)
-            // Todo 无命令输入，且没有注册option
-            _this.match(ctx);
+        return function (ctx, next) {
+            return __awaiter(this, void 0, void 0, function* () {
+                yield next();
+                ctx.routes = Object.assign({}, ctx.routes, _this.handlers);
+                // console.log(ctx)
+                // Todo 无命令输入，且没有注册option
+                _this.match(ctx);
+            });
         };
     }
     alias(aliasName) {
@@ -223,12 +237,12 @@ class Routers {
         return this;
     }
     option(name, description) {
-        const commandHndler = this.handlers[this.currentRouteName];
-        if (commandHndler) {
-            const { options } = commandHndler;
+        const commandHandler = this.handlers[this.currentRouteName];
+        if (commandHandler) {
+            const { options } = commandHandler;
             const { options: newOptions } = Routers.parseRoute(name, { description });
-            const path = `${commandHndler.path} ${newOptions.map(item => item.search).join(' ')}`;
-            this.handlers[this.currentRouteName] = Object.assign({}, commandHndler, { options: options.concat(newOptions), path });
+            const path = `${commandHandler.path} ${newOptions.map(item => item.search).join(' ')}`;
+            this.handlers[this.currentRouteName] = Object.assign({}, commandHandler, { options: options.concat(newOptions), path });
         }
         return this;
     }

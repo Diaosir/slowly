@@ -1,5 +1,6 @@
 import { IArgv } from '../interface/type'
 import { OPTION_ONE_REG, OPTION_TWO_REG } from '../utils/contant'
+// const minimist = require('minimist')
 const path = require('path')
 import * as is from '../utils/is'
 import { parseQuery } from '../utils/parsing'

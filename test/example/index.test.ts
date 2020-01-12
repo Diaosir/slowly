@@ -1,13 +1,13 @@
 import { App, Router } from '../../lib'
 import { IContext } from '../../lib/interface/type'
 import { testCommand } from '../helper'
+import decorator from '../../lib/decorator'
 describe('template test', () => {
   testCommand('controller test', 'test-slowly init', async (done: any, app: App, router: Router) => {
     const { ctx: { controller, config}} = app;
     expect(Object.keys(controller)).toContain('home');
     expect(controller.home).toHaveProperty('create')
     expect(config).toMatchObject({name: 'test-slowly'});
-
     router.register('init', 'test controller', async (ctx: IContext, next: any) => {
       await next();
       expect(ctx).toHaveProperty('message', 'hello world')
@@ -34,6 +34,14 @@ describe('template test', () => {
     router.register('init', inquirerMiddleware, async (ctx: IContext) => {
       expect(ctx.query).toHaveProperty('name', 'test_user')
       done()
+    })
+  })
+  testCommand('enable decorator', 'test-slowly c -a huangzhen -n ad -h', async (done: any, app: App) => {
+    app.use(decorator());
+    app.ctx.emitter.on('command:*', (command) => {
+      if(command === 'create') {
+        done()
+      }
     })
   })
 })

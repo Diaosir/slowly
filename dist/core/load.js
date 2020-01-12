@@ -6,19 +6,22 @@ const FILTER_FUNCTION = ['constructor'];
 class Load {
     constructor(ctx) {
         this.lazyLoadStack = [];
-        this.dynamicLoad(ctx, 'service', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/service/*.{js,ts}'))));
-        this.dynamicLoad(ctx, 'controller', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/controller/*.{js,ts}'))));
-        this.dynamicLoad(ctx, 'middleware', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/middleware/*.{js,ts}'))), false);
+        const { useDecorator } = ctx.app.option;
+        this.dynamicLoad(ctx, 'service', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/service/*.{js,ts}'))), true, true);
+        this.dynamicLoad(ctx, 'controller', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/controller/*.{js,ts}'))), true, !useDecorator);
+        this.dynamicLoad(ctx, 'middleware', Load._filterGlobs(glob.sync(path.join(ctx.cwd, '/middleware/*.{js,ts}'))), false, true);
         this.dynamicLoad(ctx, null, Load._filterGlobs(glob.sync(path.join(__dirname, '../plugins/**/*.{js,ts}'))));
-        this.lazyLoad();
     }
-    dynamicLoad(ctx, key, glob, autoInstantiation = true) {
+    dynamicLoad(ctx, key, glob, autoInstantiation = true, isLazyLoad = false) {
         const _this = this;
         let object = {};
         try {
             glob.map((filePath) => {
                 const { name } = path.parse(filePath);
                 object[name] = filePath;
+                if (!isLazyLoad) {
+                    ctx[key] = Object.assign({}, ctx[key], { [name]: loadAndAutoBindContext(filePath) });
+                }
                 _this.lazyLoadStack.push({
                     name,
                     filePath,
@@ -30,25 +33,14 @@ class Load {
         catch (error) {
             console.log(error);
         }
+        if (!isLazyLoad) {
+            return;
+        }
         if (!!key) {
             ctx[key] = new Proxy(object, {
                 get: function (target, name) {
                     if (typeof target[name] === 'string') {
-                        const originalClass = Load.getOriginalClass(target[name]);
-                        if (autoInstantiation) {
-                            originalClass.prototype.ctx = ctx;
-                            const entry = new originalClass(ctx);
-                            Object.getOwnPropertyNames(originalClass.prototype).forEach((prototyeName) => {
-                                if (FILTER_FUNCTION.indexOf(prototyeName) === -1 && typeof originalClass.prototype[prototyeName] === 'function') {
-                                    entry.__proto__[prototyeName] = entry.__proto__[prototyeName].bind(entry);
-                                }
-                                return;
-                            });
-                            return entry;
-                        }
-                        else {
-                            return originalClass;
-                        }
+                        return loadAndAutoBindContext(target[name]);
                     }
                     return target[name];
                 }
@@ -59,6 +51,23 @@ class Load {
                 const originalClass = Load.getOriginalClass(object[name]);
                 ctx[name] = new originalClass(ctx);
             });
+        }
+        function loadAndAutoBindContext(name) {
+            const originalClass = Load.getOriginalClass(name);
+            if (autoInstantiation) {
+                originalClass.prototype.ctx = ctx;
+                const entry = new originalClass(ctx);
+                Object.getOwnPropertyNames(originalClass.prototype).forEach((prototyeName) => {
+                    if (FILTER_FUNCTION.indexOf(prototyeName) === -1 && typeof originalClass.prototype[prototyeName] === 'function') {
+                        entry.__proto__[prototyeName] = entry.__proto__[prototyeName].bind(entry);
+                    }
+                    return;
+                });
+                return entry;
+            }
+            else {
+                return originalClass;
+            }
         }
     }
     //TODO
