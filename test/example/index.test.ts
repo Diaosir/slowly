@@ -36,9 +36,9 @@ describe('template test', () => {
       done()
     })
   })
-  testCommand('enable decorator', 'test-slowly c -a huangzhen -n ad -h', async (done: any, app: App) => {
+  testCommand('enable decorator', 'test-slowly c -a huangzhen -n ad ', async (done: any, app: App) => {
     app.use(decorator());
-    app.ctx.emitter.on('command:*', (command) => {
+    app.ctx.emitter.on('command', (command) => {
       if(command === 'create') {
         done()
       }

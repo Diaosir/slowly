@@ -1,14 +1,15 @@
+
 import { mergeJSON } from './merge-json';
-export default function Help(onHelp: Function) {
+export default function After(after: Function) {
   return function(target: any, functionName?: string) {
-    if(!functionName) {
-      // target.prototype['usage'] = usage;
+    if(!functionName || typeof after !== 'function') {
       return;
     }
     target['commands'] = mergeJSON(target['commands'] || {}, {
       [functionName]: {
-        config: {
-          onHelp
+        after: async (ctx, next) => {
+          await next()
+          await after(ctx);
         }
       }
     });

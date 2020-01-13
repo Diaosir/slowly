@@ -61,7 +61,14 @@ export default class Load {
                 const entry = new originalClass(ctx);
                 Object.getOwnPropertyNames(originalClass.prototype).forEach((prototyeName: string) => {
                     if(FILTER_FUNCTION.indexOf(prototyeName) === -1 && typeof originalClass.prototype[prototyeName] === 'function') {
-                        entry.__proto__[prototyeName] = entry.__proto__[prototyeName].bind(entry);
+                        entry.__proto__[prototyeName] = entry.__proto__[prototyeName].bind(entry)
+                        // const func = entry.__proto__[prototyeName];
+                        // entry.__proto__[prototyeName] = async function(ctx, next) {
+                        //     func.apply(entry, [ctx, next])
+                        //     if(typeof next === 'function') {
+                        //         //await next()
+                        //     }
+                        // }.bind(entry)
                     }
                     return ;
                 });

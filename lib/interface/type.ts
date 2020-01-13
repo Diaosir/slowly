@@ -1,4 +1,5 @@
 import App from "../app";
+import EventHandler from "../utils/eventHandler";
 
 export interface AppMiddleware {
   
@@ -16,7 +17,7 @@ export interface IContext {
     [key: string]: IRouteConfig
   }
   version: string;
-  emitter: EventEmitter;
+  emitter: EventHandler;
   name?: string;
   middleware?: {
     [key: string]: any

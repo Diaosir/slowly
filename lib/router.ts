@@ -155,7 +155,7 @@ export default class Routers {
     const handler = Routers.getHandlerByCommandName(command, this.handlers);
     if (handler) {
       handler.fn(ctx);
-      ctx.emitter.emit('command:*', handler.name, handler);
+      ctx.emitter.emit('command', handler.name, handler);
     }
   }
   async before(ctx: IContext, next: Function) {
@@ -221,11 +221,11 @@ export default class Routers {
       _this.match(ctx);
     }
   }
-  public alias(aliasName: string) {
+  public alias(alias: string) {
     if (this.handlers[this.currentRouteName]) {
       this.handlers[this.currentRouteName] = {
         ...this.handlers[this.currentRouteName],
-        alias: aliasName
+        alias: alias
       }
     }
     return this;
@@ -246,11 +246,20 @@ export default class Routers {
     }
     return this;
   }
-  public usage(description: string){
+  public usage(usage: string){
     if (this.handlers[this.currentRouteName]) {
       this.handlers[this.currentRouteName] = {
         ...this.handlers[this.currentRouteName],
-        usage: description
+        usage: usage
+      }
+    }
+    return this;
+  }
+  public description(description: string){
+    if (this.handlers[this.currentRouteName]) {
+      this.handlers[this.currentRouteName] = {
+        ...this.handlers[this.currentRouteName],
+        description: description
       }
     }
     return this;
