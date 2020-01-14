@@ -12,29 +12,64 @@ var prefix_1 = require("./prefix");
 exports.Prefix = prefix_1.default;
 var Option_1 = require("./Option");
 exports.Option = Option_1.default;
-// export { default as Help } from './help'
+var Usage_1 = require("./Usage");
+exports.Usage = Usage_1.default;
+var Alias_1 = require("./Alias");
+exports.Alias = Alias_1.default;
+var Description_1 = require("./Description");
+exports.Description = Description_1.default;
+var Help_1 = require("./Help");
+exports.Help = Help_1.default;
+var After_1 = require("./After");
+exports.After = After_1.default;
+var Before_1 = require("./Before");
+exports.Before = Before_1.default;
+var BeforeAll_1 = require("./BeforeAll");
+exports.BeforeAll = BeforeAll_1.default;
+var AfterAll_1 = require("./AfterAll");
+exports.AfterAll = AfterAll_1.default;
 function decorator() {
     return (ctx, next) => __awaiter(this, void 0, void 0, function* () {
         const { app: { router }, controller } = ctx;
         Object.keys(controller).forEach((controllerName) => {
-            const { commands } = controller[controllerName].__proto__;
+            const { commands, beforeAll, afterAll, optionAll } = controller[controllerName];
             if (is.isObject(commands) && Object.keys(commands).length > 0) {
                 for (let commandName in commands) {
-                    const { usage, options, actions } = commands[commandName];
-                    if (commandName === 'index') {
-                        router.register(controllerName, usage);
-                        if (is.isArray(options)) {
-                            options.forEach((option) => {
-                                router.option.apply(router, option);
-                            });
-                        }
-                        if (usage) {
-                            router.usage(usage);
-                        }
-                        if (Array.isArray(actions) && actions.length > 0) {
-                            router.action.apply(router, actions);
-                        }
+                    const { usage, options, actions, alias, config = {}, description, before, after } = commands[commandName];
+                    router.register(commandName === 'index' ? controllerName : `${controllerName} ${commandName}`, usage, config);
+                    if (is.isArray(options)) {
+                        options.forEach((option) => {
+                            router.option.apply(router, option);
+                        });
                     }
+                    if (is.isArray(optionAll)) {
+                        optionAll.forEach((option) => {
+                            router.option.apply(router, option);
+                        });
+                    }
+                    if (alias) {
+                        router.alias(alias);
+                    }
+                    if (usage) {
+                        router.usage(usage);
+                    }
+                    if (description) {
+                        router.description(description);
+                    }
+                    let fn = [controller[controllerName][commandName]].concat(actions || []);
+                    if (before) {
+                        fn.unshift(before);
+                    }
+                    if (after) {
+                        fn.push(after);
+                    }
+                    if (beforeAll) {
+                        fn.unshift(beforeAll);
+                    }
+                    if (afterAll) {
+                        fn.push(afterAll);
+                    }
+                    router.action.apply(router, fn);
                 }
             }
         });

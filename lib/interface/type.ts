@@ -51,6 +51,8 @@ export interface IRouteOption {
   type?: string;
   search?: string;
   description?: string;
+  defaultValue?: any;
+  transform?: Function;
 }
 export enum RouteOptionRuleEnum {
   NORMAL,

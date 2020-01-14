@@ -6,12 +6,18 @@ function Option(...args) {
         if (!name) {
             return;
         }
-        const data = {
-            [functionName]: {
-                options: [args]
-            }
-        };
-        target.__proto__['commands'] = merge_json_1.mergeJSON(target.__proto__['commands'] || {}, data);
+        if (!functionName) {
+            const options = [args];
+            target.prototype['optionAll'] = merge_json_1.mergeJSON(target.prototype['optionAll'] || [], options);
+        }
+        else {
+            const data = {
+                [functionName]: {
+                    options: [args]
+                }
+            };
+            target['commands'] = merge_json_1.mergeJSON(target['commands'] || {}, data);
+        }
     };
 }
 exports.default = Option;

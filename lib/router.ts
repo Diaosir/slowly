@@ -116,14 +116,20 @@ export default class Routers {
       }
     } 
     comandOptions.forEach((option) => {
-      const { rule, name, summary_name, required, search} = option;
+      const { rule, name, summary_name, required, search, defaultValue, transform } = option;
       switch(rule) {
         case RouteOptionRuleEnum.QUERY:
-          query[name] = query[name] || query[summary_name];
+          query[name] = query[name] || query[summary_name] || defaultValue;
           delete query[summary_name];
           if (required && query[name] === undefined) {
             message += `\noption ${search} is required`;
             verify = false;
+          } else if(is.isFunction(transform)) {
+            try{
+              query[name] = transform(query[name]);
+            } catch(err) {
+              Log.warning(err)
+            }
           }
           break;
         case RouteOptionRuleEnum.PARAM:
@@ -264,16 +270,33 @@ export default class Routers {
     }
     return this;
   }
-  public option(name: string, description?: string) {
+  /**
+   *
+   * This method can only register one option
+   * @param {string} rule the rule of option 
+   * @param {string} [description]
+   * @param {...Array<any>} args 
+   * @returns
+   * @memberof Routers
+   */
+  public option(rule: string, description?: string, ...args: Array<any>) {
+    const defaultValue = args.filter((arg) => !is.isFunction(arg))[0];
+    const transform = args.filter((arg) => is.isFunction(arg))[0];
     const commandHandler = this.handlers[this.currentRouteName]
     if (commandHandler) {
       const { options } = commandHandler;
-      const { options: newOptions } = Routers.parseRoute(name, { description });
-      const path = `${commandHandler.path} ${newOptions.map(item => item.search).join(' ')}`
+      const { options: newOptions } = Routers.parseRoute(rule, { description });
+      const option = {
+        ...newOptions[0],
+        defaultValue,
+        transform
+      }
+      options.push(option);
+      const path = `${commandHandler.path} ${newOptions.map(item => item.search).join(' ')}`;
       this.handlers[this.currentRouteName] = {
         ...commandHandler,
-        options: options.concat(newOptions),
-        path
+        options,
+        path,
       }
     }
     return this;

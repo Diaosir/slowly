@@ -26,7 +26,7 @@ export default class Routers {
      * @param {*} options
      * @memberof Routers
      */
-    verifyOption(ctx: IContext, comandOptions: Array<IRouteOption>): {
+    verifyOption(ctx: IContext, comandOptions: Array<IRouteOption>, commandName: string): {
         verify: boolean;
         message: string;
     };
@@ -48,7 +48,7 @@ export default class Routers {
      * @memberof Routers
      */
     routes(): (ctx: IContext, next: Function) => Promise<void>;
-    alias(aliasName: string): this;
+    alias(alias: string): this;
     /**
      * register action
      * @param {*} middlerwares
@@ -56,9 +56,19 @@ export default class Routers {
      * @memberof Routers
      */
     action(...middlerwares: Array<Function>): this;
-    usage(description: string): this;
-    option(name: string, description?: string): this;
-    static getHandlerByCommandName(commandName: string, commandHandlers: {
+    usage(usage: string): this;
+    description(description: string): this;
+    /**
+     *
+     * This method can only register one option
+     * @param {string} rule the rule of option
+     * @param {string} [description]
+     * @param {...Array<any>} args
+     * @returns
+     * @memberof Routers
+     */
+    option(rule: string, description?: string, ...args: Array<any>): this;
+    static getHandlerByParams(params: Array<string>, commandHandlers: {
         [key: string]: IRouteConfig;
     }): IRouteConfig;
 }

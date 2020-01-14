@@ -13,6 +13,7 @@ const contant_1 = require("./utils/contant");
 const is = require("./utils/is");
 const Log = require("./utils/log");
 const argv_1 = require("./core/argv");
+const OPTION_REG = /(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g;
 /**
  *
  * find Illegality Route Option
@@ -50,9 +51,9 @@ class Routers {
             return {};
         }
         // let options: Array<string|IRouteOption> = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g);
-        let optionMatchResult = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g) || [];
-        let commandMatchResult = route.match(/^(\w+)/) || [];
-        const command = commandMatchResult[0] || contant_1.EMPTY_COMMAND_NAME;
+        let optionMatchResult = route.match(OPTION_REG) || [];
+        let commandMatchResult = route.replace(OPTION_REG, '').trim().split(/\s+/).join('__');
+        const command = commandMatchResult || contant_1.EMPTY_COMMAND_NAME;
         let options = optionMatchResult.map((item) => {
             let option = Object.assign({ rule: type_1.RouteOptionRuleEnum.NORMAL, required: item[0] === '<' && item[item.length - 1] === '>' }, matchReg(item, contant_1.ROUTE_OPTION_ONE_REG, 'summary_name'), matchReg(item, contant_1.ROUTE_OPTION_TWO_REG, 'name'), matchReg(item, contant_1.ROUTE_OPTION_REST_REG, 'name', 2), { description: config.description });
             return option;
@@ -88,29 +89,39 @@ class Routers {
      * @param {*} options
      * @memberof Routers
      */
-    verifyOption(ctx, comandOptions) {
+    verifyOption(ctx, comandOptions, commandName) {
         const { argv: { params, query } } = ctx;
-        const [command, ...restParams] = params;
+        const restParams = params.filter((param) => {
+            return commandName.split('__').indexOf(param) === -1;
+        });
         let verify = true, message = '';
         const illegalityRouteOptions = getIllegalityRouteOption(ctx, comandOptions);
         if (illegalityRouteOptions.length > 0) {
             verify = false;
             message = `illegality option ${illegalityRouteOptions.join('、')}`;
-            ctx.emitter.emit('illegality:option', command, illegalityRouteOptions);
+            ctx.emitter.emit('illegality:option', commandName, illegalityRouteOptions);
             return {
                 verify,
                 message
             };
         }
         comandOptions.forEach((option) => {
-            const { rule, name, summary_name, required, search } = option;
+            const { rule, name, summary_name, required, search, defaultValue, transform } = option;
             switch (rule) {
                 case type_1.RouteOptionRuleEnum.QUERY:
-                    query[name] = query[name] || query[summary_name];
+                    query[name] = query[name] || query[summary_name] || defaultValue;
                     delete query[summary_name];
                     if (required && query[name] === undefined) {
                         message += `\noption ${search} is required`;
                         verify = false;
+                    }
+                    else if (is.isFunction(transform)) {
+                        try {
+                            query[name] = transform(query[name]);
+                        }
+                        catch (err) {
+                            Log.warning(err);
+                        }
                     }
                     break;
                 case type_1.RouteOptionRuleEnum.PARAM:
@@ -140,31 +151,30 @@ class Routers {
      */
     match(ctx) {
         const { argv: { params } } = ctx;
-        const command = params[0] || contant_1.EMPTY_COMMAND_NAME;
-        const handler = Routers.getHandlerByCommandName(command, this.handlers);
+        const handler = Routers.getHandlerByParams(params, this.handlers);
         if (handler) {
             handler.fn(ctx);
+            ctx.emitter.emit('command', handler.name, handler);
         }
     }
     before(ctx, next) {
         return __awaiter(this, void 0, void 0, function* () {
             const { argv: { params, query } } = ctx;
-            const command = params[0] || contant_1.EMPTY_COMMAND_NAME;
-            const handler = Routers.getHandlerByCommandName(command, this.handlers);
+            const handler = Routers.getHandlerByParams(params, this.handlers);
             const { options } = handler;
             if (query.help || query.h) {
-                if (command !== contant_1.EMPTY_COMMAND_NAME) {
+                if (handler.name !== contant_1.EMPTY_COMMAND_NAME) {
                     this.generateAutoHelp(handler);
-                    ctx.emitter.emit('command:help', command);
+                    ctx.emitter.emit('command:help', handler.name);
                 }
                 return;
             }
-            const { verify, message } = this.verifyOption(ctx, options);
+            const { verify, message } = this.verifyOption(ctx, options, handler.name);
             if (verify) {
                 yield next();
             }
             else {
-                ctx.emitter.emit('verifyOption:fail', command, options);
+                ctx.emitter.emit('verifyOption:fail', handler.name, options);
                 Log.error(message);
             }
         });
@@ -187,6 +197,7 @@ class Routers {
         this.currentRouteName = command;
         // Json.render(options)
         this.handlers[command] = {
+            name: command,
             path,
             options,
             fn,
@@ -211,9 +222,9 @@ class Routers {
             });
         };
     }
-    alias(aliasName) {
+    alias(alias) {
         if (this.handlers[this.currentRouteName]) {
-            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { alias: aliasName });
+            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { alias: alias });
         }
         return this;
     }
@@ -230,28 +241,56 @@ class Routers {
         }
         return this;
     }
-    usage(description) {
+    usage(usage) {
         if (this.handlers[this.currentRouteName]) {
-            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { usage: description });
+            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { usage: usage });
         }
         return this;
     }
-    option(name, description) {
+    description(description) {
+        if (this.handlers[this.currentRouteName]) {
+            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { description: description });
+        }
+        return this;
+    }
+    /**
+     *
+     * This method can only register one option
+     * @param {string} rule the rule of option
+     * @param {string} [description]
+     * @param {...Array<any>} args
+     * @returns
+     * @memberof Routers
+     */
+    option(rule, description, ...args) {
+        const defaultValue = args.filter((arg) => !is.isFunction(arg))[0];
+        const transform = args.filter((arg) => is.isFunction(arg))[0];
         const commandHandler = this.handlers[this.currentRouteName];
         if (commandHandler) {
             const { options } = commandHandler;
-            const { options: newOptions } = Routers.parseRoute(name, { description });
+            const { options: newOptions } = Routers.parseRoute(rule, { description });
+            const option = Object.assign({}, newOptions[0], { defaultValue,
+                transform });
+            options.push(option);
             const path = `${commandHandler.path} ${newOptions.map(item => item.search).join(' ')}`;
-            this.handlers[this.currentRouteName] = Object.assign({}, commandHandler, { options: options.concat(newOptions), path });
+            this.handlers[this.currentRouteName] = Object.assign({}, commandHandler, { options,
+                path });
         }
         return this;
     }
-    static getHandlerByCommandName(commandName, commandHandlers) {
-        if (commandHandlers[commandName]) {
-            return commandHandlers[commandName];
+    static getHandlerByParams(params = [], commandHandlers) {
+        for (let i = params.length - 1; i >= 0; i--) {
+            let name = params.slice(0, i + 1).join('__');
+            if (commandHandlers[name]) {
+                return commandHandlers[name];
+            }
+        }
+        let name = params[0] || contant_1.EMPTY_COMMAND_NAME;
+        if (commandHandlers[name]) {
+            return commandHandlers[name];
         }
         for (let key in commandHandlers) {
-            if (commandHandlers[key].alias === commandName) {
+            if (commandHandlers[key].alias === name) {
                 return commandHandlers[key];
             }
         }

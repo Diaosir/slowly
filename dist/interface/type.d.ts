@@ -1,3 +1,5 @@
+import App from "../app";
+import EventHandler from "../utils/eventHandler";
 export interface AppMiddleware {
 }
 export interface IContext {
@@ -13,7 +15,7 @@ export interface IContext {
         [key: string]: IRouteConfig;
     };
     version: string;
-    emitter: any;
+    emitter: EventHandler;
     name?: string;
     middleware?: {
         [key: string]: any;
@@ -26,6 +28,7 @@ export interface IContext {
     };
     readonly params: Array<string>;
     curl: (url: string, ...args: Array<any>) => Promise<any> | void;
+    app: App;
     [key: string]: any;
 }
 export interface IArgv {
@@ -45,6 +48,8 @@ export interface IRouteOption {
     type?: string;
     search?: string;
     description?: string;
+    defaultValue?: any;
+    transform?: Function;
 }
 export declare enum RouteOptionRuleEnum {
     NORMAL = 0,
@@ -53,6 +58,7 @@ export declare enum RouteOptionRuleEnum {
     REST = 3
 }
 export interface IRouteConfig {
+    name: string;
     path: string;
     options: Array<IRouteOption>;
     fn: Function;
@@ -72,6 +78,7 @@ export interface IAppOption {
     version: string;
     name: string;
     userConfigFile?: string;
+    useDecorator?: boolean;
 }
 export interface EventEmitter {
     on(event: string, listener: Function): this;

@@ -40,7 +40,8 @@ function GlobalCheckCommand(ctx, next) {
         const { argv: { params }, routes } = ctx;
         const [command] = params;
         const hasRegisterCommandList = Object.keys(routes).filter(item => item !== contant_1.EMPTY_COMMAND_NAME);
-        if (command !== undefined && !router_1.default.getHandlerByCommandName(command, routes)) {
+        const matchRouter = router_1.default.getHandlerByParams(params, routes);
+        if (!matchRouter) {
             console.log(`${ctx.name}: '${command}' is not a command, See '${ctx.name} --help'`);
             const sortCommandList = hasRegisterCommandList.filter(item => leven(item, command) <= 2).sort((a, b) => {
                 return leven(a, command) - leven(b, command);

@@ -10,6 +10,7 @@ export { default as After } from './After'
 export { default as Before } from './Before'
 export { default as BeforeAll } from './BeforeAll'
 export { default as AfterAll } from './AfterAll'
+
 export default function decorator() {
   return async(ctx: IContext, next: any) => {
     const { app: { router}, controller } = ctx;

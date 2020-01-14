@@ -1,5 +1,6 @@
 import Context from './utils/context';
 import { IAppOption, IContext } from './interface/type';
+import Router from './router';
 import curl from './utils/curl';
 declare class App {
     name: string;
@@ -12,7 +13,9 @@ declare class App {
     middlewares: Array<Function>;
     option: IAppOption;
     curl: typeof curl;
+    router: Router;
     constructor(option: IAppOption);
+    start(): void;
     use(fn: Function): this;
     createContext(): Context;
     callback(): void;

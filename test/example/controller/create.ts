@@ -1,14 +1,14 @@
 import { Controller } from '../../../lib'
-import { Option, Prefix, Description, Before, After, BeforeAll, AfterAll, Help} from '../../../lib/decorator';
-@Prefix('hh')
+import { Option, Description, Before, After, BeforeAll, AfterAll, Help} from '../../../lib/decorator';
 @BeforeAll(async() => {
   console.log('all before')
 })
 @AfterAll(async() => {
   console.log('all after')
 })
-@Option('<-n | --name>', 'please and and', 'defaultValue')
-@Option('[-a | --aa]', 'please and dsd', )
+@Option('[-f | --float]', 'please and and', value => parseFloat(value) * 10, 1.0)
+@Option('[-a | --aa]', 'please and dsd')
+@Option('[-n | --name]', 'please and dsd')
 export default class CreateController extends Controller {
   @Description('阿斯顿是对的')
   @Before(async () => {
@@ -24,6 +24,7 @@ export default class CreateController extends Controller {
     this.ctx.message = message;
     await next();
   }
+  @Option('<-l | --list>', 'comma separated list', (value) => value.split(','))
   @Option('[...folders]', 'please and dsd')
   @Description('this is sentry')
   @Help(() => {
