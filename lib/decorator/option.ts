@@ -6,11 +6,16 @@ export default function Option(...args: any) {
     if(!name) {
       return;
     }
-    const data = {
-      [functionName]: {
-        options: [args]
+    if(!functionName) {
+      const options = [args];
+      target.prototype['optionAll'] = mergeJSON(target.prototype['optionAll'] || [], options);
+    } else {
+      const data = {
+        [functionName]: {
+          options: [args]
+        }
       }
+      target['commands'] = mergeJSON(target['commands'] || {}, data);
     }
-    target['commands'] = mergeJSON(target['commands'] || {}, data);
   }
 }

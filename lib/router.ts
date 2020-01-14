@@ -4,6 +4,7 @@ import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_REST_REG, EMPT
 import * as is from './utils/is'
 import * as Log from './utils/log'
 import Argv from './core/argv'
+const OPTION_REG = /(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g;
 /**
  *
  * find Illegality Route Option
@@ -50,10 +51,9 @@ export default class Routers {
       }
     }
     // let options: Array<string|IRouteOption> = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g);
-    let optionMatchResult = route.match(/(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g) || [];
-    
-    let commandMatchResult = route.match(/^(\w+)/) || []
-    const command = commandMatchResult[0] || EMPTY_COMMAND_NAME;
+    let optionMatchResult = route.match(OPTION_REG) || [];
+    let commandMatchResult = route.replace(OPTION_REG, '').trim().split(/\s+/).join('__')
+    const command = commandMatchResult || EMPTY_COMMAND_NAME;
     let options:Array<IRouteOption> = optionMatchResult.map((item: string) => {
       let option: IRouteOption = {
         rule: RouteOptionRuleEnum.NORMAL,
@@ -96,18 +96,20 @@ export default class Routers {
    * @param {*} options
    * @memberof Routers
    */
-  verifyOption(ctx: IContext, comandOptions: Array<IRouteOption>): {
+  verifyOption(ctx: IContext, comandOptions: Array<IRouteOption>, commandName: string): {
     verify: boolean;
     message: string;
   }{
     const { argv: { params, query }} = ctx;
-    const [command, ...restParams] = params;
+    const restParams = params.filter((param) => {
+      return commandName.split('__').indexOf(param) === -1;
+    })
     let verify = true, message = '';
     const illegalityRouteOptions = getIllegalityRouteOption(ctx, comandOptions);
     if (illegalityRouteOptions.length > 0) {
       verify = false;
       message = `illegality option ${illegalityRouteOptions.join('、')}`
-      ctx.emitter.emit('illegality:option', command, illegalityRouteOptions);
+      ctx.emitter.emit('illegality:option', commandName, illegalityRouteOptions);
       return {
         verify,
         message
@@ -138,6 +140,7 @@ export default class Routers {
           }
           query[name] = restParams;
           break;
+          
       }
     })
     return {
@@ -151,8 +154,7 @@ export default class Routers {
    */
   match(ctx: IContext): void {
     const { argv: { params }} = ctx;
-    const command = params[0] || EMPTY_COMMAND_NAME;
-    const handler = Routers.getHandlerByCommandName(command, this.handlers);
+    const handler = Routers.getHandlerByParams(params, this.handlers);
     if (handler) {
       handler.fn(ctx);
       ctx.emitter.emit('command', handler.name, handler);
@@ -160,22 +162,20 @@ export default class Routers {
   }
   async before(ctx: IContext, next: Function) {
     const { argv: { params, query }} = ctx;
-    const command = params[0] || EMPTY_COMMAND_NAME;
-    const handler = Routers.getHandlerByCommandName(command, this.handlers);
+    const handler = Routers.getHandlerByParams(params, this.handlers);
     const { options } = handler;
     if (query.help || query.h) {
-      if (command !== EMPTY_COMMAND_NAME) {
+      if (handler.name !== EMPTY_COMMAND_NAME) {
         this.generateAutoHelp(handler);
-        ctx.emitter.emit('command:help', command);
+        ctx.emitter.emit('command:help', handler.name);
       }
       return;
     }
-    const { verify, message} = this.verifyOption(ctx, options);
-
+    const { verify, message} = this.verifyOption(ctx, options, handler.name);
     if (verify) {
       await next()
     } else {
-      ctx.emitter.emit('verifyOption:fail', command, options)
+      ctx.emitter.emit('verifyOption:fail', handler.name, options)
       Log.error(message);
     }
   }
@@ -278,12 +278,19 @@ export default class Routers {
     }
     return this;
   }
-  public static getHandlerByCommandName(commandName: string, commandHandlers: { [key: string]: IRouteConfig}) {
-    if (commandHandlers[commandName]) {
-      return commandHandlers[commandName]
+  public static getHandlerByParams(params: Array<string> = [], commandHandlers: { [key: string]: IRouteConfig}) {
+    for(let i = params.length - 1; i >= 0; i--) {
+      let name = params.slice(0, i + 1).join('__');
+      if(commandHandlers[name]) {
+        return commandHandlers[name];
+      }
+    }
+    let name = params[0] || EMPTY_COMMAND_NAME;
+    if (commandHandlers[name]) {
+      return commandHandlers[name]
     }
     for (let key in commandHandlers) {
-      if (commandHandlers[key].alias === commandName) {
+      if (commandHandlers[key].alias === name) {
         return commandHandlers[key]
       }
     }

@@ -2,6 +2,8 @@ import { App, Router } from '../../lib'
 import { IContext } from '../../lib/interface/type'
 import { testCommand } from '../helper'
 import decorator from '../../lib/decorator'
+//disable original console  
+// console.log = () => {}
 describe('template test', () => {
   testCommand('controller test', 'test-slowly init', async (done: any, app: App, router: Router) => {
     const { ctx: { controller, config}} = app;
@@ -36,10 +38,26 @@ describe('template test', () => {
       done()
     })
   })
-  testCommand('enable decorator', 'test-slowly c -a huangzhen -n ad ', async (done: any, app: App) => {
+  testCommand('enable decorator', 'test-slowly create -a huangzhen -n ad', async (done: any, app: App) => {
     app.use(decorator());
     app.ctx.emitter.on('command', (command) => {
       if(command === 'create') {
+        done()
+      }
+    })
+  })
+  testCommand('enable decorator sub command', 'test-slowly create sentry folder1 fff --aa 2 --name 23', async (done: any, app: App) => {
+    app.use(decorator());
+    app.ctx.emitter.on('command', (command) => {
+      if(command === 'create__sentry') {
+        done()
+      }
+    })
+  })
+  testCommand('sub command help', 'test-slowly create sentry -h', async (done: any, app: App) => {
+    app.use(decorator());
+    app.ctx.emitter.on('command:help', (command) => {
+      if(command === 'create__sentry') {
         done()
       }
     })

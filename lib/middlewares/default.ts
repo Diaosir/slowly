@@ -29,7 +29,8 @@ export async function GlobalCheckCommand(ctx: IContext, next: Function) {
     const { argv: { params }, routes} = ctx;
     const [ command ] = params;
     const hasRegisterCommandList = Object.keys(routes).filter(item => item !== EMPTY_COMMAND_NAME);
-    if (command !== undefined && !Routers.getHandlerByCommandName(command, routes)) {
+    const matchRouter = Routers.getHandlerByParams(params, routes)
+    if (!matchRouter) {
         console.log(`${ctx.name}: '${command}' is not a command, See '${ctx.name} --help'`)
         const sortCommandList = hasRegisterCommandList.filter(item => leven(item, command) <= 2 ).sort((a: string, b: string) => {
             return leven(a, command) - leven(b, command);

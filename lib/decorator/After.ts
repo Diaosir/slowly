@@ -8,8 +8,8 @@ export default function After(after: Function) {
     target['commands'] = mergeJSON(target['commands'] || {}, {
       [functionName]: {
         after: async (ctx, next) => {
-          await next()
           await after(ctx);
+          await next()
         }
       }
     });

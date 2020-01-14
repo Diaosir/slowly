@@ -8,18 +8,24 @@ export { default as Description } from './Description'
 export { default as Help } from './Help'
 export { default as After } from './After'
 export { default as Before } from './Before'
-// export { default as Help } from './help'
+export { default as BeforeAll } from './BeforeAll'
+export { default as AfterAll } from './AfterAll'
 export default function decorator() {
   return async(ctx: IContext, next: any) => {
     const { app: { router}, controller } = ctx;
     Object.keys(controller).forEach((controllerName) => {
-      const { commands }  = controller[controllerName];
+      const { commands, beforeAll, afterAll, optionAll }  = controller[controllerName];
       if(is.isObject(commands) && Object.keys(commands).length > 0) {
         for(let commandName in commands) {
           const { usage, options, actions, alias, config = {}, description, before, after} = commands[commandName];
           router.register(commandName === 'index' ? controllerName : `${controllerName} ${commandName}`, usage, config);
           if(is.isArray(options)) {
             options.forEach((option: Array<any>) => {
+              router.option.apply(router, option);
+            })
+          }
+          if(is.isArray(optionAll)) {
+            optionAll.forEach((option: Array<any>) => {
               router.option.apply(router, option);
             })
           }
@@ -32,12 +38,18 @@ export default function decorator() {
           if(description) {
             router.description(description)
           }
-          let fn = commandName === 'index' ? [controller[controllerName].index] : [].concat(actions || []);
+          let fn = [controller[controllerName][commandName]].concat(actions || []);
           if(before) {
             fn.unshift(before)
           }
           if(after) {
             fn.push(after)
+          }
+          if(beforeAll) {
+            fn.unshift(beforeAll)
+          }
+          if(afterAll) {
+            fn.push(afterAll)
           }
           router.action.apply(router, fn);
         }

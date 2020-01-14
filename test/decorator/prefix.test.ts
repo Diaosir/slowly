@@ -8,6 +8,6 @@ class Test {
 describe('decorator prefix', () => {
   test('prefix class', () => {
      const test: any = new Test()
-     expect(test.__proto__).toHaveProperty('classPrefixs', 'init')
+     expect(test.__proto__).toHaveProperty('commandPrefix', 'init')
   })
 })

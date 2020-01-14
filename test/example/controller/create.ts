@@ -1,10 +1,15 @@
 import { Controller } from '../../../lib'
-import { Option, Prefix, Alias, Description, Before, After} from '../../../lib/decorator';
+import { Option, Prefix, Description, Before, After, BeforeAll, AfterAll, Help} from '../../../lib/decorator';
 @Prefix('hh')
+@BeforeAll(async() => {
+  console.log('all before')
+})
+@AfterAll(async() => {
+  console.log('all after')
+})
+@Option('<-n | --name>', 'please and and', 'defaultValue')
+@Option('[-a | --aa]', 'please and dsd', )
 export default class CreateController extends Controller {
-  @Option('<-n | --name>', 'please and and ')
-  @Option('[-a | --aa]', 'please and dsd')
-  @Alias('c')
   @Description('阿斯顿是对的')
   @Before(async () => {
     console.log('before');
@@ -19,7 +24,12 @@ export default class CreateController extends Controller {
     this.ctx.message = message;
     await next();
   }
+  @Option('[...folders]', 'please and dsd')
+  @Description('this is sentry')
+  @Help(() => {
+    console.log('Example: create sentry aaa')
+  })
   async sentry() {
-
+    console.log(this.ctx.query)
   }
 }
