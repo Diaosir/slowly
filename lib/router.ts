@@ -3,7 +3,7 @@ import { IContext, IRouteOption, RouteOptionRuleEnum, IRouteConfig} from './inte
 import { ROUTE_OPTION_ONE_REG, ROUTE_OPTION_TWO_REG, ROUTE_OPTION_REST_REG, EMPTY_COMMAND_NAME} from './utils/contant'
 import * as is from './utils/is'
 import * as Log from './utils/log'
-import UI from '../lib/ui'
+import UI from './ui'
 import Argv from './core/argv'
 const chalk = require('chalk');
 const OPTION_REG = /(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g;
