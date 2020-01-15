@@ -1,6 +1,6 @@
 import { RouteOptionRuleEnum, IContext, IRouteConfig } from '../interface/type'
 import { EMPTY_COMMAND_NAME} from '../utils/contant'
-import UI from '../../lib/ui'
+import UI from '../ui'
 function isGlobalHelp(ctx: IContext) {
   const { argv: { params, query } } = ctx;
   return  params.length === 0 && (query.help || query.h)

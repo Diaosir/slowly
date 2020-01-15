@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const type_1 = require("../interface/type");
 const contant_1 = require("../utils/contant");
-const ui_1 = require("../../lib/ui");
+const ui_1 = require("../ui");
 function isGlobalHelp(ctx) {
     const { argv: { params, query } } = ctx;
     return params.length === 0 && (query.help || query.h);
