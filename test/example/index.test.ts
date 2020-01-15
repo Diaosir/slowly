@@ -54,9 +54,11 @@ describe('template test', () => {
       }
     })
   })
-  testCommand('sub command help', 'test-slowly -h', async (done: any, app: App) => {
+  testCommand('sub command help', 'test-slowly create sentry -h', async (done: any, app: App) => {
     app.use(decorator());
-    done()
+    setTimeout(() => {
+      done()
+    }, 2000)
     // app.ctx.emitter.on('command:help', (command) => {
     //   if(command === 'create__sentry') {
     //     done()

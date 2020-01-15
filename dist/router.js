@@ -12,7 +12,9 @@ const type_1 = require("./interface/type");
 const contant_1 = require("./utils/contant");
 const is = require("./utils/is");
 const Log = require("./utils/log");
+const ui_1 = require("../lib/ui");
 const argv_1 = require("./core/argv");
+const chalk = require('chalk');
 const OPTION_REG = /(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g;
 /**
  *
@@ -70,16 +72,48 @@ class Routers {
      */
     generateAutoHelp(commandConfig) {
         const { path, config: { onHelp }, options, usage, description } = commandConfig;
-        let usageMessage = Log.getInfo('Usage', usage || path);
-        let descriptionMessage = Log.getInfo('Description', description);
-        let optionMessage = Log.getInfo('Options', '');
-        optionMessage += Log.generateOptionLine('-h | --help', 'output usage information');
+        const ui = ui_1.default({
+            width: 150
+        });
+        ui.div({
+            text: 'Usage:',
+            width: 15,
+        }, {
+            text: `${usage || path}`
+        });
+        ui.div({
+            text: '\nOptions:\n',
+            width: 15
+        });
+        ui.div({
+            text: '[-h | --help]',
+            width: 30,
+            padding: [0, 4, 0, 4]
+        }, {
+            text: `output usage information`
+        });
         options.forEach(option => {
             if (option.rule === type_1.RouteOptionRuleEnum.QUERY) {
-                optionMessage += Log.generateOptionLine(option.search, option.description);
+                ui.div({
+                    text: option.search,
+                    padding: [0, 4, 0, 4],
+                    width: 30
+                }, {
+                    text: `${option.description}`,
+                    width: 100
+                }, {
+                    text: option.required ? chalk.yellow('[required]') : '',
+                    align: 'right'
+                });
             }
         });
-        console.log(`${usageMessage}\n\n${descriptionMessage}\n\n${optionMessage}\n\n`);
+        ui.div({
+            text: '\nDescription:',
+            width: 15
+        }, {
+            text: `\n${description}`
+        });
+        console.log(ui.toString());
         typeof onHelp === 'function' && onHelp();
     }
     /**

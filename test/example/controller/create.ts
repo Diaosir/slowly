@@ -8,9 +8,9 @@ import { Option, Description, Before, After, BeforeAll, AfterAll, Help} from '..
 })
 @Option('[-f | --float]', 'please and and', value => parseFloat(value) * 10, 1.0)
 @Option('[-a | --aa]', 'please and dsd')
-@Option('[-n | --name]', 'please and dsd')
+@Option('[-n | --name]', 'init the template of project and relate the project to the remote repository')
 export default class CreateController extends Controller {
-  @Description('阿斯顿是对的')
+  @Description('init the template of project and relate the project to the remote repository')
   @Before(async () => {
     console.log('before');
   })
