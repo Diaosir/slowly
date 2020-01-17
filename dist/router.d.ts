@@ -1,4 +1,4 @@
-import { IContext, IRouteOption, IRouteConfig } from './interface/type';
+import { IContext, IRouteConfig } from './interface/type';
 export default class Routers {
     path: any;
     middlewares: any;
@@ -7,42 +7,18 @@ export default class Routers {
         [key: string]: IRouteConfig;
     };
     constructor();
-    static parseRoute(route: string, config?: {
-        [key: string]: any;
-    }): {
-        command: string;
-        options: Array<IRouteOption>;
-    };
-    /**
-     *
-     *
-     * @memberof Routers
-     */
-    private generateAutoHelp;
-    /**
-     *
-     * verify this route options
-     * @param {*} ctx
-     * @param {*} options
-     * @memberof Routers
-     */
-    verifyOption(ctx: IContext, comandOptions: Array<IRouteOption>, commandName: string): {
-        verify: boolean;
-        message: string;
-    };
     /**
      * init <dir> [...otherDirs] [-q | --quiet] <-a | --action>
      * @param ctx
      */
     match(ctx: IContext): void;
-    before(ctx: IContext, next: Function): Promise<void>;
     after(_: IContext): Promise<void>;
     /**
      *
      * 注册
      * @memberof Routers
      */
-    register(path: string, ...args: any[]): this;
+    register(search: string, ...args: any[]): this;
     /**
      * slowly middlerware
      * @memberof Routers

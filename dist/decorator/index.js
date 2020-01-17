@@ -57,17 +57,17 @@ function decorator() {
                         router.description(description);
                     }
                     let fn = [controller[controllerName][commandName]].concat(actions || []);
-                    if (before) {
-                        fn.unshift(before);
+                    if (Array.isArray(before)) {
+                        fn.unshift(...before);
                     }
-                    if (after) {
-                        fn.push(after);
+                    if (Array.isArray(after)) {
+                        fn.push(...after);
                     }
-                    if (beforeAll) {
-                        fn.unshift(beforeAll);
+                    if (Array.isArray(beforeAll)) {
+                        fn.unshift(...beforeAll);
                     }
-                    if (afterAll) {
-                        fn.push(afterAll);
+                    if (Array.isArray(afterAll)) {
+                        fn.push(...afterAll);
                     }
                     router.action.apply(router, fn);
                 }

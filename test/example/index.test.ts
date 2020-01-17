@@ -46,23 +46,16 @@ describe('template test', () => {
       }
     })
   })
-  testCommand('enable decorator sub command', 'test-slowly create sentry folder1 fff --aa 2 -l a,b,c', async (done: any, app: App) => {
-    app.use(decorator());
-    app.ctx.emitter.on('command', (command) => {
-      if(command === 'create__sentry') {
-        done()
-      }
-    })
-  })
-  testCommand('sub command help', 'test-slowly create sentry -h', async (done: any, app: App) => {
+  testCommand('sub command help', 'test-slowly -h', async (done: any, app: App) => {
     app.use(decorator());
     setTimeout(() => {
       done()
     }, 2000)
-    // app.ctx.emitter.on('command:help', (command) => {
-    //   if(command === 'create__sentry') {
-    //     done()
-    //   }
-    // })
+  })
+  testCommand('root command', 'test-slowly', async(done: any, app: App) => {
+    app.use(decorator());
+    setTimeout(() => {
+      done()
+    }, 2000)
   })
 })

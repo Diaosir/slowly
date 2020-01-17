@@ -11,6 +11,7 @@ const contant_1 = require("../utils/contant");
 const Log = require("../utils/log");
 const router_1 = require("../router");
 const globalHelp_1 = require("./globalHelp");
+const validateOption_1 = require("./validateOption");
 const leven = require('leven');
 function isGlobalVersion(ctx) {
     const { argv: { query } } = ctx;
@@ -23,7 +24,9 @@ function GlobalVesion(ctx, next) {
             console.log(version);
             return;
         }
-        yield next();
+        else {
+            yield next();
+        }
     });
 }
 exports.GlobalVesion = GlobalVesion;
@@ -36,7 +39,6 @@ exports.GlobalVesion = GlobalVesion;
  */
 function GlobalCheckCommand(ctx, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield next();
         const { argv: { params }, routes } = ctx;
         const [command] = params;
         const hasRegisterCommandList = Object.keys(routes).filter(item => item !== contant_1.EMPTY_COMMAND_NAME);
@@ -50,16 +52,21 @@ function GlobalCheckCommand(ctx, next) {
                 console.log(`The most similar command is:  ${sortCommandList[0]}`);
             }
         }
+        else {
+            yield next();
+        }
     });
 }
 exports.GlobalCheckCommand = GlobalCheckCommand;
 function GlobEmptyArgv(ctx, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield next();
         const { argv: { query, params } } = ctx;
         const emptyOption = Object.keys(query);
         if (params.length === 0 && emptyOption.length === 0) {
             Log.warning(`there is not any command and option, See '${ctx.name} --help'`);
+        }
+        else {
+            yield next();
         }
     });
 }
@@ -68,5 +75,6 @@ exports.default = [
     GlobEmptyArgv,
     GlobalVesion,
     GlobalCheckCommand,
-    globalHelp_1.default
+    globalHelp_1.default,
+    validateOption_1.default
 ];

@@ -1,12 +1,11 @@
-
-export default function BeforeAll(beforeAll: (ctx: any) => any) {
+import { isMiddlesFunction } from '../utils/is'
+export default function BeforeAll(middlewares:  Array<Function>) {
   return function(target: any, name?: string) {
     if(!!name) {
       return;
     }
-    target.prototype['beforeAll'] = async function BeforeAll(ctx, next) {
-      await beforeAll(ctx);
-      await next()
-    };
+    if(isMiddlesFunction(middlewares)) {
+      target.prototype['beforeAll'] = middlewares
+    }
   }
 }

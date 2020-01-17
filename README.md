@@ -264,3 +264,19 @@ readonly params: Array<string>;
 curl: (url: string, ...args: Array<any>) => Promise<any> | void; //基于urllib封装的方法
 ```
 
+
+## 缺陷
+
+1. context 使用proxy，如config 
+2. ctx添加packagejson
+3. cliui 输出格式化
+4. options default console
+5. 合并同命令options
+6. 装饰器Before支持next,支持数组
+7. options validate支持正则表达式
+8. 添加auto-complete(tabtab)
+
+9. option 
+---（-i, --install <decs>）
+---（--say-something <decs>）
+--- (-s <something>, 'Say something to the manager')

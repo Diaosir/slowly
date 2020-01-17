@@ -15,3 +15,4 @@ export declare function isNumber(wat: any): boolean;
 export declare function isFunction(wat: any): boolean;
 export declare function isAsyncFunction(wat: any): boolean;
 export declare function isHtmlFile(fileName?: any): boolean;
+export declare function isMiddlesFunction(middlewares: Array<Function>): boolean;

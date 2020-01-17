@@ -1,1 +1,1 @@
-export default function AfterAll(afterAll: (ctx: any) => any): (target: any, name?: string) => void;
+export default function AfterAll(middlewares: Array<Function>): (target: any, name?: string) => void;

@@ -4,7 +4,6 @@ import Load from './core/load';
 import { IAppOption, IContext} from './interface/type'
 import { compose } from './utils/compose'
 import Router from './router';
-import defaultMiddlewares from './middlewares/default';
 import * as path from 'path'
 import curl from './utils/curl'
 class App {
@@ -27,20 +26,14 @@ class App {
     this.config = Load.loadAllConfig(path.join(this.cwd, '/config/'), option.userConfigFile);
     this.ctx = this.createContext();
     this.baseLoad = new Load(this.ctx);
-    Object.keys(defaultMiddlewares).forEach((name: any) => {
-      this.use(defaultMiddlewares[name]);
-    })
-    //default options
-    this.router.register('', '', async() => {}).option('[-V | --version]', 'output version')
-      .option('[-h | --help]', 'output usage information')
-    setTimeout(() => {
-      this.callback();
-    }, 10)
+    this.router.register('').option('-V, --version', 'output version')
+      .option('-h, --help', 'output usage information')
   }
   start() {
     if(Object.keys(this.router.handlers).length > 0) {
       this.use(this.router.routes());
     }
+    this.callback();
   }
   use(fn: Function) {
     if (typeof fn !== 'function') {
@@ -50,13 +43,7 @@ class App {
     return this;
   }
   createContext() {
-    const ctx = new Context(this);
-    ctx.argv = this.argv;
-    ctx.config = this.config;
-    ctx.cwd = this.cwd;
-    ctx.version = this.option.version || '1.0.0'
-    ctx.name = this.option.name;
-    return ctx;
+    return new Context(this);
   }
   callback() {
     const fn = compose(this.middlewares);
@@ -66,7 +53,6 @@ class App {
   }
   usage() {}
   private _getRootParentModule(module: any): any{
-    
     if(!module.parent) {
       return module;
     } else {

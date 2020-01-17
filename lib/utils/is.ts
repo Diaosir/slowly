@@ -47,3 +47,11 @@ export function isAsyncFunction(wat: any): boolean {
 export function isHtmlFile(fileName?: any): boolean {
   return /.html$/.test(fileName);
 }
+
+export function isMiddlesFunction(middlewares:  Array<Function>) {
+  if (!Array.isArray(middlewares)) throw new TypeError('before middleware stack must be an array!')
+  for(const fn of middlewares) {
+    if (typeof fn !== 'function') throw new TypeError('before middleware must be composed of functions!')
+  }
+  return true;
+}

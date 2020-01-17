@@ -23,3 +23,8 @@ export function warning(message: string) {
 export function getInfo(name: string, message?: string, emptyValue: number = 15) {
   return `${chalk.yellow(pushBlank(`${name}:`, emptyValue))} ${chalk.green(message || '')}`
 }
+
+export function syntaxError(search: string) {
+  let msg = `syntax error in option search: ${search}`;
+  error(msg)
+}

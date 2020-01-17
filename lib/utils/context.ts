@@ -3,19 +3,11 @@ import EventHandler from '../utils/eventHandler';
 import * as is from '../utils/is'
 import App from '../app'
 export default class Context implements IContext {
-  public services: {
-    [propName: string]: any;
-  };
   public app: App;
-  public config: any;
-  public argv: IArgv;
-  public cwd: string;
   public routes: {
     [key: string]: IRouteConfig
   } = {}
-  public version: string = '1.0.0';
   public emitter = new EventHandler()
-  public name?: string;
   public middleware?: {
     [key: string]: any
   } = {}
@@ -33,11 +25,34 @@ export default class Context implements IContext {
       this.argv.query = query;
     }
   }
-  get params() {
+  get params(): Array<string> {
     return this.argv.params
   }
   get curl() {
     return this.app.curl;
+  }
+  set config(config) {
+    if(is.isObject(config)) {
+      this.app.config = config;
+    }
+  }
+  get config() {
+    return this.app.config;
+  }
+  get version() {
+    return this.app.option ? this.app.option.version : '1.0.0';
+  }
+  get name() {
+    return this.app.option ? this.app.option.name : ''
+  }
+  get cwd() {
+    return this.app.cwd;
+  }
+  set cwd(cwd) {
+    this.app.cwd = cwd;
+  }
+  get argv(): IArgv {
+    return this.app.argv;
   }
   /**
    *Creates an instance of Context.

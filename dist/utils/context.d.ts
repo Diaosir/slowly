@@ -2,19 +2,11 @@ import { IContext, IArgv, IRouteConfig } from '../interface/type';
 import EventHandler from '../utils/eventHandler';
 import App from '../app';
 export default class Context implements IContext {
-    services: {
-        [propName: string]: any;
-    };
     app: App;
-    config: any;
-    argv: IArgv;
-    cwd: string;
     routes: {
         [key: string]: IRouteConfig;
     };
-    version: string;
     emitter: EventHandler;
-    name?: string;
     middleware?: {
         [key: string]: any;
     };
@@ -27,8 +19,13 @@ export default class Context implements IContext {
     query: {
         [key: string]: any;
     };
-    readonly params: any[];
+    readonly params: Array<string>;
     readonly curl: typeof import("./curl").default;
+    config: any;
+    readonly version: string;
+    readonly name: string;
+    cwd: string;
+    readonly argv: IArgv;
     /**
      *Creates an instance of Context.
      * @param {*} app

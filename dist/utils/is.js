@@ -59,3 +59,13 @@ function isHtmlFile(fileName) {
     return /.html$/.test(fileName);
 }
 exports.isHtmlFile = isHtmlFile;
+function isMiddlesFunction(middlewares) {
+    if (!Array.isArray(middlewares))
+        throw new TypeError('before middleware stack must be an array!');
+    for (const fn of middlewares) {
+        if (typeof fn !== 'function')
+            throw new TypeError('before middleware must be composed of functions!');
+    }
+    return true;
+}
+exports.isMiddlesFunction = isMiddlesFunction;

@@ -9,7 +9,6 @@ class Context {
      */
     constructor(app) {
         this.routes = {};
-        this.version = '1.0.0';
         this.emitter = new eventHandler_1.default();
         this.middleware = {};
         this.app = app;
@@ -28,6 +27,29 @@ class Context {
     }
     get curl() {
         return this.app.curl;
+    }
+    set config(config) {
+        if (is.isObject(config)) {
+            this.app.config = config;
+        }
+    }
+    get config() {
+        return this.app.config;
+    }
+    get version() {
+        return this.app.option ? this.app.option.version : '1.0.0';
+    }
+    get name() {
+        return this.app.option ? this.app.option.name : '';
+    }
+    get cwd() {
+        return this.app.cwd;
+    }
+    set cwd(cwd) {
+        this.app.cwd = cwd;
+    }
+    get argv() {
+        return this.app.argv;
     }
 }
 exports.default = Context;

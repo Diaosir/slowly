@@ -1,17 +1,17 @@
 
 import { mergeJSON } from './merge-json';
-export default function After(after: Function) {
+import { isMiddlesFunction } from '../utils/is'
+export default function After(middlewares: Array<Function>) {
   return function(target: any, functionName?: string) {
-    if(!functionName || typeof after !== 'function') {
+    if(!functionName) {
       return;
     }
-    target['commands'] = mergeJSON(target['commands'] || {}, {
-      [functionName]: {
-        after: async (ctx, next) => {
-          await after(ctx);
-          await next()
+    if(isMiddlesFunction(middlewares)) {
+      target['commands'] = mergeJSON(target['commands'] || {}, {
+        [functionName]: {
+          after: middlewares
         }
-      }
-    });
+      });
+    } 
   }
 }

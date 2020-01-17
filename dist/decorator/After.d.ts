@@ -1,1 +1,1 @@
-export default function After(after: Function): (target: any, functionName?: string) => void;
+export default function After(middlewares: Array<Function>): (target: any, functionName?: string) => void;

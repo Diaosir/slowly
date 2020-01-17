@@ -1,6 +1,6 @@
 import App from "../app";
 import EventHandler from "../utils/eventHandler";
-
+import Option from '../core/option'
 export interface AppMiddleware {
   
 }
@@ -43,17 +43,6 @@ export interface IArgv {
   }
 }
 
-export interface IRouteOption {
-  rule?: RouteOptionRuleEnum;
-  name?: string;
-  required: boolean;
-  summary_name?: string;
-  type?: string;
-  search?: string;
-  description?: string;
-  defaultValue?: any;
-  transform?: Function;
-}
 export enum RouteOptionRuleEnum {
   NORMAL,
   PARAM,
@@ -64,7 +53,7 @@ export enum RouteOptionRuleEnum {
 export interface IRouteConfig {
   name: string;
   path: string;
-  options: Array<IRouteOption>;
+  options: Array<Option>;
   fn: Function;
   description?: string;
   alias?: string;

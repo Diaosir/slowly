@@ -3,6 +3,7 @@ import { EMPTY_COMMAND_NAME } from '../utils/contant'
 import * as Log from '../utils/log'
 import Routers from '../router'
 import GlobalHelp from './globalHelp'
+import ValidateOption from './validateOption'
 const leven = require('leven');
 
 function isGlobalVersion(ctx: IContext) {
@@ -14,8 +15,9 @@ export async function GlobalVesion(ctx: IContext, next: Function) {
     if (isGlobalVersion(ctx)) {
         console.log(version);
         return;
+    } else {
+        await next();
     }
-    await next();
 }
 /**
  *
@@ -25,7 +27,6 @@ export async function GlobalVesion(ctx: IContext, next: Function) {
  * @param {*} next
  */
 export async function GlobalCheckCommand(ctx: IContext, next: Function) {
-    await next();
     const { argv: { params }, routes} = ctx;
     const [ command ] = params;
     const hasRegisterCommandList = Object.keys(routes).filter(item => item !== EMPTY_COMMAND_NAME);
@@ -38,20 +39,23 @@ export async function GlobalCheckCommand(ctx: IContext, next: Function) {
         if (sortCommandList.length > 0) {
             console.log(`The most similar command is:  ${sortCommandList[0]}`)
         }
+    } else {
+        await next();
     }
 }
 export async function GlobEmptyArgv(ctx: IContext, next: Function) {
-    await next()
-    const { argv: { query, params}} = ctx;
+    const { argv: { query, params }} = ctx;
     const emptyOption = Object.keys(query);
     if (params.length === 0 && emptyOption.length === 0) {
-        Log.warning(`there is not any command and option, See '${ctx.name} --help'`)
+        Log.warning(`there is not any command and option, See '${ctx.name} --help'`);
+    } else {
+        await next()
     }
 }
-
 export default [
     GlobEmptyArgv,
     GlobalVesion,
     GlobalCheckCommand,
-    GlobalHelp
+    GlobalHelp,
+    ValidateOption
 ]
