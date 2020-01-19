@@ -35,27 +35,30 @@ export function showCommandHelp(route: IRouteConfig) {
       text: `${usage || `${path} ${autoUsage}${querys.length > 0 ? chalk.yellow(` [options]`) : ''}`}`
     }
   )
-  ui.div({
-    text: '\nARGUMENTS:\n',
-    width: 15
-  })
-  args.forEach(option => {
-    ui.div(
-      {
-        text: chalk.green(option.search),
-        padding: [0, 4, 0, 4],
-        width: 30
-      },
-      {
-        text: `${option.description}`,
-        width: 100
-      },
-      {
-        text: option.required ? chalk.yellow('[required]') : chalk.gray('[optional]'),
-        align: 'right'
-      }
-    )
-  })
+  if(args.length > 0) {
+    ui.div({
+      text: '\nARGUMENTS:\n',
+      width: 15
+    })
+    args.forEach(option => {
+      ui.div(
+        {
+          text: chalk.green(option.search),
+          padding: [0, 4, 0, 4],
+          width: 30
+        },
+        {
+          text: `${option.description}`,
+          width: 100
+        },
+        {
+          text: option.required ? chalk.yellow('[required]') : chalk.gray('[optional]'),
+          align: 'right'
+        }
+      )
+    })
+  }
+
   ui.div({
     text: '\nOPTIONS:\n',
     width: 15

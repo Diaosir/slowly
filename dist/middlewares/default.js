@@ -7,12 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const contant_1 = require("../utils/contant");
 const Log = require("../utils/log");
-const router_1 = require("../router");
 const globalHelp_1 = require("./globalHelp");
 const validateOption_1 = require("./validateOption");
-const leven = require('leven');
 function isGlobalVersion(ctx) {
     const { argv: { query } } = ctx;
     return query.version || query.v || query.V;
@@ -30,34 +27,6 @@ function GlobalVesion(ctx, next) {
     });
 }
 exports.GlobalVesion = GlobalVesion;
-/**
- *
- *
- * @export
- * @param {*} ctx
- * @param {*} next
- */
-function GlobalCheckCommand(ctx, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { argv: { params }, routes } = ctx;
-        const [command] = params;
-        const hasRegisterCommandList = Object.keys(routes).filter(item => item !== contant_1.EMPTY_COMMAND_NAME);
-        const matchRouter = router_1.default.getHandlerByParams(params, routes);
-        if (!matchRouter) {
-            console.log(`${ctx.name}: '${command}' is not a command, See '${ctx.name} --help'`);
-            const sortCommandList = hasRegisterCommandList.filter(item => leven(item, command) <= 2).sort((a, b) => {
-                return leven(a, command) - leven(b, command);
-            });
-            if (sortCommandList.length > 0) {
-                console.log(`The most similar command is:  ${sortCommandList[0]}`);
-            }
-        }
-        else {
-            yield next();
-        }
-    });
-}
-exports.GlobalCheckCommand = GlobalCheckCommand;
 function GlobEmptyArgv(ctx, next) {
     return __awaiter(this, void 0, void 0, function* () {
         const { argv: { query, params } } = ctx;
@@ -74,7 +43,6 @@ exports.GlobEmptyArgv = GlobEmptyArgv;
 exports.default = [
     GlobEmptyArgv,
     GlobalVesion,
-    GlobalCheckCommand,
     globalHelp_1.default,
     validateOption_1.default
 ];

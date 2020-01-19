@@ -4,7 +4,9 @@ import { EMPTY_COMMAND_NAME } from './utils/contant'
 import * as is from './utils/is'
 import Option from './core/option';
 import defaultMiddlewares from './middlewares/default';
+const chalk = require('chalk');
 
+const leven = require('leven');
 const OPTION_REG = /(\[[:\.\w-\s\|]+\])|(<[:\.\w-\s\|]+>)/g;
 export default class Routers {
   public path: any;
@@ -22,9 +24,19 @@ export default class Routers {
   match(ctx: IContext): void {
     const { argv: { params }} = ctx;
     const handler = Routers.getHandlerByParams(params, this.handlers);
+    const hasRegisterCommandList = Object.keys(this.handlers).filter(item => item !== EMPTY_COMMAND_NAME);
     if (handler) {
       handler.fn(ctx);
       ctx.emitter.emit('command', handler.name, handler);
+    } else {
+      const name = params.join(' ');
+      console.log(`${ctx.name}: '${name}' is not a command, See '${ctx.name} --help'`)
+      const sortCommandList = hasRegisterCommandList.filter(item => leven(item, name) <= 2 ).sort((a: string, b: string) => {
+          return leven(a, name) - leven(b, name);
+      })
+      if (sortCommandList.length > 0) {
+          console.log(`The most similar command is:  ${chalk.cyan(sortCommandList.join(', '))}`)
+      }
     }
   }
   async after(_: IContext) {
@@ -143,10 +155,12 @@ export default class Routers {
     return this;
   }
   public static getHandlerByParams(params: Array<string> = [], commandHandlers: { [key: string]: IRouteConfig}) {
-    for(let i = params.length - 1; i >= 0; i--) {
-      let name = params.slice(0, i + 1).join('__');
-      if(commandHandlers[name]) {
-        return commandHandlers[name];
+    if(params.length > 1) {
+      for(let i = params.length - 1; i >= 0; i--) {
+        let name = params.slice(0, i + 1).join('__');
+        if(commandHandlers[name]) {
+          return commandHandlers[name];
+        }
       }
     }
     let name = params[0] || EMPTY_COMMAND_NAME;

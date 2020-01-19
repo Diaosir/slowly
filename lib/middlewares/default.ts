@@ -1,10 +1,8 @@
 import { IContext } from '../interface/type'
-import { EMPTY_COMMAND_NAME } from '../utils/contant'
 import * as Log from '../utils/log'
-import Routers from '../router'
 import GlobalHelp from './globalHelp'
 import ValidateOption from './validateOption'
-const leven = require('leven');
+
 
 function isGlobalVersion(ctx: IContext) {
     const { argv: { query } } = ctx;
@@ -15,30 +13,6 @@ export async function GlobalVesion(ctx: IContext, next: Function) {
     if (isGlobalVersion(ctx)) {
         console.log(version);
         return;
-    } else {
-        await next();
-    }
-}
-/**
- *
- *
- * @export
- * @param {*} ctx
- * @param {*} next
- */
-export async function GlobalCheckCommand(ctx: IContext, next: Function) {
-    const { argv: { params }, routes} = ctx;
-    const [ command ] = params;
-    const hasRegisterCommandList = Object.keys(routes).filter(item => item !== EMPTY_COMMAND_NAME);
-    const matchRouter = Routers.getHandlerByParams(params, routes)
-    if (!matchRouter) {
-        console.log(`${ctx.name}: '${command}' is not a command, See '${ctx.name} --help'`)
-        const sortCommandList = hasRegisterCommandList.filter(item => leven(item, command) <= 2 ).sort((a: string, b: string) => {
-            return leven(a, command) - leven(b, command);
-        })
-        if (sortCommandList.length > 0) {
-            console.log(`The most similar command is:  ${sortCommandList[0]}`)
-        }
     } else {
         await next();
     }
@@ -55,7 +29,6 @@ export async function GlobEmptyArgv(ctx: IContext, next: Function) {
 export default [
     GlobEmptyArgv,
     GlobalVesion,
-    GlobalCheckCommand,
     GlobalHelp,
     ValidateOption
 ]
