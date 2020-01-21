@@ -107,7 +107,6 @@ function ValidateOption(ctx, next) {
             ctx.emitter.emit('verifyOption:fail', handler.name, options);
             Log.error(message);
         }
-        yield next();
     });
 }
 exports.default = ValidateOption;

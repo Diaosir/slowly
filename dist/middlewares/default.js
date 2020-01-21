@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Log = require("../utils/log");
 const globalHelp_1 = require("./globalHelp");
 const validateOption_1 = require("./validateOption");
+const contant_1 = require("../utils/contant");
 function isGlobalVersion(ctx) {
     const { argv: { query } } = ctx;
     return query.version || query.v || query.V;
@@ -29,9 +30,10 @@ function GlobalVesion(ctx, next) {
 exports.GlobalVesion = GlobalVesion;
 function GlobEmptyArgv(ctx, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { argv: { query, params } } = ctx;
+        const { argv: { query, params }, routes } = ctx;
         const emptyOption = Object.keys(query);
-        if (params.length === 0 && emptyOption.length === 0) {
+        const emptyHandler = routes[contant_1.EMPTY_COMMAND_NAME];
+        if (params.length === 0 && emptyOption.length === 0 && (!emptyHandler || !emptyHandler.fn)) {
             Log.warning(`there is not any command and option, See '${ctx.name} --help'`);
         }
         else {

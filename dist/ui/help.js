@@ -3,9 +3,13 @@ const index_1 = require("./index");
 const contant_1 = require("../utils/contant");
 const chalk = require('chalk');
 function getCommandMessage(route) {
-    const { options, name } = route;
+    const { options, name, alias } = route;
     const hasQuery = options.filter(option => !option.isArgument).length > 0;
     let message = `${name.replace('__', ' ')}`;
+    if (!!alias) {
+        let aliasName = alias.split('__').reverse()[0];
+        message += chalk.green(`(${aliasName})`);
+    }
     let commandMessage = `${options.filter(option => option.isArgument).reduce((preValue, curOption) => chalk.cyan(`${preValue} ${curOption.search}`), '')}`;
     if (commandMessage) {
         message += ` ${commandMessage}`;
@@ -28,8 +32,10 @@ function showCommandHelp(route) {
     ui.div({
         text: 'USAGE:',
         width: 15,
+        padding: [1, 0, 0, 0],
     }, {
-        text: `${usage || `${path} ${autoUsage}${querys.length > 0 ? chalk.yellow(` [options]`) : ''}`}`
+        text: `${usage || `${path} ${autoUsage}${querys.length > 0 ? chalk.yellow(` [options]`) : ''}`}`,
+        padding: [1, 0, 0, 0],
     });
     if (args.length > 0) {
         ui.div({
@@ -87,8 +93,13 @@ exports.showCommandHelp = showCommandHelp;
 function showHelp(ctx) {
     const { routes } = ctx;
     const ui = index_1.default();
+    ui.div({
+        text: `${ctx.name}：${ctx.version}`,
+        padding: [2, 0, 2, 0],
+    });
     ui.div(`USAGE: ${ctx.name} <command> [options]\n`);
-    let hasRegisterRouteNames = Object.keys(routes).filter(routeName => routeName !== contant_1.EMPTY_COMMAND_NAME);
+    let aliasRouteNames = Object.keys(routes).map(routeName => routes[routeName].alias).filter(routeName => !!routeName);
+    let hasRegisterRouteNames = Object.keys(routes).filter(routeName => routeName !== contant_1.EMPTY_COMMAND_NAME && aliasRouteNames.indexOf(routeName) === -1);
     let emptyCommand = routes[contant_1.EMPTY_COMMAND_NAME];
     if (hasRegisterRouteNames.length === 0) {
         ui.div(`Commands: haven't register any command\n`);

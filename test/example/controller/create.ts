@@ -1,5 +1,5 @@
 import { Controller } from '../../../lib'
-import { Option, Description, Before, After, BeforeAll, AfterAll, Help} from '../../../lib/decorator';
+import { Option, Description, Before, After, BeforeAll, AfterAll, Help, Alias} from '../../../lib/decorator';
 @BeforeAll([async(_, next) => {
   console.log('all before')
   await next()
@@ -27,6 +27,7 @@ export default class CreateController extends Controller {
   ])
   @Option('[folders...]', 'please and dsd')
   @Option('<dir>', 'please and dsd')
+  @Alias('c')
   async index(_, next) {
     console.log('create');
     const { service: { index } } = this.ctx;
@@ -42,5 +43,10 @@ export default class CreateController extends Controller {
   })
   async sentry() {
     console.log(this.ctx.query)
+  }
+  @Description('this is sentry')
+  @Alias('al')
+  async alias() {
+
   }
 }

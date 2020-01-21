@@ -2,7 +2,7 @@ import { Controller } from '../../../lib'
 import { Description, Option } from '../../../lib/decorator';
 export default class IndexController extends Controller {
   @Description('this is sentry')
-  @Option('-c, --config', 'dsdd')
+  @Option('-c, --config <config>', 'dsdd')
   async index() {
     console.log('1323')
   }

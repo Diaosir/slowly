@@ -3,9 +3,13 @@ import UI from './index'
 import { EMPTY_COMMAND_NAME} from '../utils/contant'
 const chalk = require('chalk')
 function getCommandMessage(route: IRouteConfig) {
-  const { options, name } = route;
+  const { options, name, alias } = route;
   const hasQuery = options.filter(option => !option.isArgument).length > 0;
   let message = `${name.replace('__', ' ')}`;
+  if(!!alias) {
+    let aliasName = alias.split('__').reverse()[0];
+    message += chalk.green(`(${aliasName})`)
+  }
   let commandMessage = `${options.filter(option => option.isArgument).reduce((preValue, curOption) => chalk.cyan(`${preValue} ${curOption.search}`), '')}`
   if(commandMessage) {
     message += ` ${commandMessage}`
@@ -31,8 +35,10 @@ export function showCommandHelp(route: IRouteConfig) {
     {
       text: 'USAGE:',
       width: 15,
+      padding: [1, 0, 0, 0],
     },{
-      text: `${usage || `${path} ${autoUsage}${querys.length > 0 ? chalk.yellow(` [options]`) : ''}`}`
+      text: `${usage || `${path} ${autoUsage}${querys.length > 0 ? chalk.yellow(` [options]`) : ''}`}`,
+      padding: [1, 0, 0, 0],
     }
   )
   if(args.length > 0) {
@@ -104,10 +110,15 @@ export function showCommandHelp(route: IRouteConfig) {
 export function showHelp(ctx: IContext) {
   const { routes } = ctx;
   const ui = UI();
+  ui.div({
+    text: `${ctx.name}：${ctx.version}`,
+    padding: [2, 0, 2, 0],
+  })
   ui.div(
     `USAGE: ${ctx.name} <command> [options]\n`
   )
-  let hasRegisterRouteNames = Object.keys(routes).filter(routeName => routeName !== EMPTY_COMMAND_NAME);
+  let aliasRouteNames = Object.keys(routes).map(routeName => routes[routeName].alias).filter(routeName => !!routeName);
+  let hasRegisterRouteNames = Object.keys(routes).filter(routeName => routeName !== EMPTY_COMMAND_NAME && aliasRouteNames.indexOf(routeName) === -1);
   let emptyCommand = routes[EMPTY_COMMAND_NAME];
   if(hasRegisterRouteNames.length === 0) {
     ui.div(

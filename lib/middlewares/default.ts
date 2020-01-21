@@ -2,6 +2,7 @@ import { IContext } from '../interface/type'
 import * as Log from '../utils/log'
 import GlobalHelp from './globalHelp'
 import ValidateOption from './validateOption'
+import { EMPTY_COMMAND_NAME } from '../utils/contant';
 
 
 function isGlobalVersion(ctx: IContext) {
@@ -18,9 +19,10 @@ export async function GlobalVesion(ctx: IContext, next: Function) {
     }
 }
 export async function GlobEmptyArgv(ctx: IContext, next: Function) {
-    const { argv: { query, params }} = ctx;
+    const { argv: { query, params }, routes } = ctx;
     const emptyOption = Object.keys(query);
-    if (params.length === 0 && emptyOption.length === 0) {
+    const emptyHandler = routes[EMPTY_COMMAND_NAME];
+    if (params.length === 0 && emptyOption.length === 0 && (!emptyHandler || !emptyHandler.fn)) {
         Log.warning(`there is not any command and option, See '${ctx.name} --help'`);
     } else {
         await next()

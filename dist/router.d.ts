@@ -47,4 +47,5 @@ export default class Routers {
     static getHandlerByParams(params: Array<string>, commandHandlers: {
         [key: string]: IRouteConfig;
     }): IRouteConfig;
+    static getAliasName(): void;
 }

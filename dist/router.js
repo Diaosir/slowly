@@ -89,9 +89,24 @@ class Routers {
         };
     }
     alias(alias) {
-        if (this.handlers[this.currentRouteName]) {
-            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { alias: alias });
-        }
+        const list = this.currentRouteName.split('__');
+        list[list.length - 1] = alias;
+        const name = list.join('__');
+        this.handlers[name] = new Proxy(this.handlers[this.currentRouteName], {
+            get(target, key) {
+                if (key === 'name') {
+                    return name;
+                }
+                return target[key];
+            },
+            set(target, key, value) {
+                if (key === 'name') {
+                    return false;
+                }
+                return Reflect.set(target, key, value);
+            }
+        });
+        this.handlers[name].alias = name;
         return this;
     }
     /**
@@ -103,19 +118,19 @@ class Routers {
     action(...middlerwares) {
         const fn = compose_1.compose([].concat(default_1.default, [...middlerwares, this.after.bind(this)]));
         if (this.handlers[this.currentRouteName]) {
-            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { fn: fn });
+            this.handlers[this.currentRouteName].fn = fn;
         }
         return this;
     }
     usage(usage) {
         if (this.handlers[this.currentRouteName]) {
-            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { usage: usage });
+            this.handlers[this.currentRouteName].usage = usage;
         }
         return this;
     }
     description(description) {
         if (this.handlers[this.currentRouteName]) {
-            this.handlers[this.currentRouteName] = Object.assign({}, this.handlers[this.currentRouteName], { description: description });
+            this.handlers[this.currentRouteName].description = description;
         }
         return this;
     }
@@ -137,9 +152,8 @@ class Routers {
             if (!hasRegister) {
                 options.push(option);
             }
-            const path = `${commandHandler.path}`;
-            this.handlers[this.currentRouteName] = Object.assign({}, commandHandler, { options,
-                path });
+            this.handlers[this.currentRouteName].options = options;
+            this.handlers[this.currentRouteName].path = `${commandHandler.path}`;
         }
         return this;
     }
@@ -156,12 +170,9 @@ class Routers {
         if (commandHandlers[name]) {
             return commandHandlers[name];
         }
-        for (let key in commandHandlers) {
-            if (commandHandlers[key].alias === name) {
-                return commandHandlers[key];
-            }
-        }
         return null;
+    }
+    static getAliasName() {
     }
 }
 exports.default = Routers;

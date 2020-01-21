@@ -99,5 +99,4 @@ export default async function ValidateOption(ctx: IContext, next: Function) {
     ctx.emitter.emit('verifyOption:fail', handler.name, options)
     Log.error(message);
   }
-  await next();
 }

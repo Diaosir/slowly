@@ -45,13 +45,13 @@ describe('template test', () => {
   //     }
   //   })
   // })
-  testCommand('sub command help', 'test-slowly -h', async (done: any, app: App) => {
-    app.use(decorator());
-    setTimeout(() => {
-      done()
-    }, 2000)
-  })
-  testCommand('root command', 'test-slowly creat', async(done: any, app: App) => {
+  // testCommand('sub command help', 'test-slowly -h', async (done: any, app: App) => {
+  //   app.use(decorator());
+  //   setTimeout(() => {
+  //     done()
+  //   }, 2000)
+  // })
+  testCommand('root command', 'test-slowly', async(done: any, app: App) => {
     app.use(decorator());
     setTimeout(() => {
       done()
