@@ -4,31 +4,29 @@ const argv_1 = require("./core/argv");
 const load_1 = require("./core/load");
 const compose_1 = require("./utils/compose");
 const router_1 = require("./router");
-const default_1 = require("./middlewares/default");
 const path = require("path");
-const router = new router_1.default();
+const curl_1 = require("./utils/curl");
 class App {
     constructor(option) {
         this.name = '';
         this.middlewares = [];
-        if (option.es6) {
-            require('babel-register')({
-                plugins: ['babel-plugin-transform-es2015-modules-commonjs']
-            });
-        }
+        this.curl = curl_1.default;
+        this.router = new router_1.default();
+        const rootModule = this._getRootParentModule(module);
         this.option = option;
         this.argv = new argv_1.default();
-        this.cwd = `${option.dirname || __dirname}`;
-        this.config = load_1.default.loadAllConfig(path.join(this.cwd, '/config/'));
+        this.cwd = path.dirname(rootModule.filename);
+        this.config = load_1.default.loadAllConfig(path.join(this.cwd, '/config/'), option.userConfigFile);
         this.ctx = this.createContext();
         this.baseLoad = new load_1.default(this.ctx);
-        Object.keys(default_1.default).forEach((name) => {
-            this.use(default_1.default[name]);
-        });
-        this.use(router.routes());
-        setTimeout(() => {
-            this.callback();
-        }, 10);
+        this.router.register('').option('-V, --version', 'output version')
+            .option('-h, --help', 'output usage information');
+    }
+    start() {
+        if (Object.keys(this.router.handlers).length > 0) {
+            this.use(this.router.routes());
+        }
+        this.callback();
     }
     use(fn) {
         if (typeof fn !== 'function') {
@@ -38,13 +36,7 @@ class App {
         return this;
     }
     createContext() {
-        const ctx = new context_1.default();
-        ctx.argv = this.argv;
-        ctx.config = this.config;
-        ctx.cwd = this.cwd;
-        ctx.version = this.option.version || '1.0.0';
-        ctx.name = this.option.name;
-        return ctx;
+        return new context_1.default(this);
     }
     callback() {
         const fn = compose_1.compose(this.middlewares);
@@ -53,5 +45,13 @@ class App {
     help() {
     }
     usage() { }
+    _getRootParentModule(module) {
+        if (!module.parent) {
+            return module;
+        }
+        else {
+            return this._getRootParentModule(module.parent);
+        }
+    }
 }
 exports.default = App;

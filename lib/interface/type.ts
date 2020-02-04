@@ -1,27 +1,39 @@
+import App from "../app";
+import EventHandler from "../utils/eventHandler";
+import Option from '../core/option'
 export interface AppMiddleware {
   
 }
-export interface ContextInterface {
+export interface IContext {
   cwd: string;
-  service?: String | {
+  service?: {
     [key: string]: any
   },
   command?: {
     [key: string]: any
   },
-  argv: any,
+  argv: IArgv,
   routes: {
-    [key: string]: RouteConfigInterfase
+    [key: string]: IRouteConfig
   }
   version: string;
-  emitter: any;
+  emitter: EventHandler;
   name?: string;
   middleware?: {
     [key: string]: any
   };
-  [key: string]: any
+  controller: {
+    [key: string]: any
+  },
+  query?: {
+    [key: string]: any;
+  };
+  readonly params: Array<string>;
+  curl: (url: string, ...args: Array<any>) => Promise<any> | void;
+  app: App;
+  [key: string]: any;
 }
-export interface ArgvInterface {
+export interface IArgv {
   originalArgv: Array<string>;
   params: Array<any>;
   name: string;
@@ -31,15 +43,6 @@ export interface ArgvInterface {
   }
 }
 
-export interface RouteOptionInterface {
-  rule?: RouteOptionRuleEnum;
-  name?: string;
-  required: boolean;
-  summary_name?: string;
-  type?: string;
-  search?: string;
-  description?: string;
-}
 export enum RouteOptionRuleEnum {
   NORMAL,
   PARAM,
@@ -47,9 +50,10 @@ export enum RouteOptionRuleEnum {
   REST
 }
 
-export interface RouteConfigInterfase {
+export interface IRouteConfig {
+  name: string;
   path: string;
-  options: Array<RouteOptionInterface>;
+  options: Array<Option>;
   fn: Function;
   description?: string;
   alias?: string;
@@ -63,11 +67,11 @@ export interface RouteConfigInterfase {
     }
   }
 }
-export interface AppOptionInterface {
-  es6?: boolean;
+export interface IAppOption {
   version: string; 
   name: string;
-  dirname: string;
+  userConfigFile?: string; 
+  useDecorator?: boolean
 }
 
 export interface EventEmitter{

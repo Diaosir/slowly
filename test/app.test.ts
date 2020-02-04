@@ -1,22 +1,28 @@
-import { App, Router} from '../lib'
-process.argv = ['node', 'test-slowly', 'init', '-n', 'huangzhen', '--name=huangzhen'];
-process.execPath = '/Users/huangzhen/.nvm/versions/node/v8.4.0/bin/node'
-process.cwd = function() {
-    return 'G:\\github\\slowly\\test\\bin'
-    // return '/Users/fengzhihao/Projects/github/slowly/test'
-}
-const router = new Router()
-const app = new App();
-
-describe('app test', () => {
-    
-    test('router test',  async done => {
-        router.register('init <dir> [...otherDirs] [-q | --quiet] <-a | --action>', async (ctx) => {
-            console.log(ctx)
-            expect(1+1).toBe(2)
-            done()
+import { App, Router } from '../lib'
+import { IContext } from '../lib/interface/type'
+import { testCommand } from './helper'
+//disable original console  
+console.log = () => {}
+describe('command test', () => {
+    testCommand('single router register', 'test-slowly init template1 template2 -q --action=go template3', async (done: any, _: any, router: Router) => {
+        router.register('init [...template] [-q | --quiet] <-a | --action>', async (ctx: IContext) => {
+            done();
+            const { cwd, argv: { query }} = ctx;
+            expect(cwd).toBe(__dirname);
+            expect(query).toMatchObject({'quiet': true, 'action': 'go', template: ['template1', 'template2', 'template3']});
         })
-        app.use(router.routes());
-        
+    })
+    testCommand('call help by "--help" options','test-slowly --help', async (done: any, app: App) => {
+        app.ctx.emitter.on('help', (name: any) => {
+            done()
+            expect(name).toBe('global')
+        })
+    })
+    testCommand('call help by "-h" options','test-slowly -h', async (done: any, app: App) => {
+        expect.assertions(1);
+        app.ctx.emitter.on('help', (name: any) => {
+            done()
+            expect(name).toBe('global')
+        })
     })
 })

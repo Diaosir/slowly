@@ -28,3 +28,8 @@ function getInfo(name, message, emptyValue = 15) {
     return `${chalk.yellow(pushBlank(`${name}:`, emptyValue))} ${chalk.green(message || '')}`;
 }
 exports.getInfo = getInfo;
+function syntaxError(search) {
+    let msg = `syntax error in option search: ${search}`;
+    error(msg);
+}
+exports.syntaxError = syntaxError;

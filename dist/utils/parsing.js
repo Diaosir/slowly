@@ -2,24 +2,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const is = require("./is");
 /**
  * parsing query value
- * @param queryValue
+ * @param query
  */
-function parseQueryValue(queryValue) {
-    if (!is.isString(queryValue)) {
-        return queryValue;
+function parseQuery(query) {
+    if (!is.isString(query)) {
+        return query;
     }
-    if (queryValue.match(/^[\w_]+,([\w_]+,?)*$/)) { // is list
-        return queryValue.split(',');
+    if (query.match(/^[\w_]+,([\w_]+,?)*$/)) { // is list
+        return query.split(',');
     }
-    if (queryValue === 'true') {
+    if (query === 'true') {
         return true;
     }
-    if (queryValue == 'false') {
+    if (query == 'false') {
         return false;
     }
-    if (queryValue.match(/^\d+$/)) {
-        return parseFloat(queryValue);
+    if (query.match(/^\d+$/)) {
+        return parseFloat(query);
     }
-    return queryValue;
+    return query;
 }
-exports.parseQueryValue = parseQueryValue;
+exports.parseQuery = parseQuery;

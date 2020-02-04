@@ -1,6 +1,6 @@
-
+import { IContext } from './interface/type'
 export default class Service {
-  public ctx: any;
+  public ctx: IContext;
   constructor() {
   }
 }

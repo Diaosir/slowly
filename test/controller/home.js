@@ -1,8 +1,0 @@
-module.exports = class Home {
-    async init(ctx) {
-        // console.log(ctx)
-        // const { test2 } = this.ctx.service;
-        // const body = await test2.sayHello()
-        // console.log(body);
-    }
-}

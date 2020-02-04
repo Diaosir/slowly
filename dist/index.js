@@ -8,3 +8,5 @@ var service_1 = require("./service");
 exports.Service = service_1.default;
 var router_1 = require("./router");
 exports.Router = router_1.default;
+var Controller_1 = require("./Controller");
+exports.Controller = Controller_1.default;

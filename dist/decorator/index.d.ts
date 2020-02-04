@@ -1,0 +1,12 @@
+import { IContext } from '../interface/type';
+export { default as Prefix } from './prefix';
+export { default as Option } from './Option';
+export { default as Usage } from './Usage';
+export { default as Alias } from './Alias';
+export { default as Description } from './Description';
+export { default as Help } from './Help';
+export { default as After } from './After';
+export { default as Before } from './Before';
+export { default as BeforeAll } from './BeforeAll';
+export { default as AfterAll } from './AfterAll';
+export default function decorator(): (ctx: IContext, next: any) => Promise<void>;

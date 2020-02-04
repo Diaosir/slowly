@@ -1,9 +1,16 @@
-
-// import * as is from '../utils/is'
-// export default function Help(callback) {
-//     return function(target, name, descriptor) {
-//         target.onHelp = function() {
-//           callback.apply(this, null);
-//         }
-//     }
-// }
+import { mergeJSON } from './merge-json';
+export default function Help(onHelp: Function) {
+  return function(target: any, functionName?: string) {
+    if(!functionName) {
+      // target.prototype['usage'] = usage;
+      return;
+    }
+    target['commands'] = mergeJSON(target['commands'] || {}, {
+      [functionName]: {
+        config: {
+          onHelp
+        }
+      }
+    });
+  }
+}

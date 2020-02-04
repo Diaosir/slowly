@@ -1,10 +1,12 @@
 {
   "name": "slowly",
-  "version": "1.0.3",
+  "version": "1.2.0",
   "description": "",
   "scripts": {
-    "test": "jest  --watchAll --coverage"
+    "test": "jest  --watchAll --coverage",
+    "build": "tsc -d"
   },
+  "main": "./index.js",
   "repository": {
     "type": "git"
   },
@@ -14,20 +16,22 @@
     "@types/node": "^12.6.8",
     "babel-jest": "^24.8.0",
     "jest": "^24.8.0",
+    "rollup-plugin-typescript": "^1.0.1",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "typescript-tslint-plugin": "^0.5.4"
   },
   "dependencies": {
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "babel-preset-env": "^1.7.0",
     "babel-register": "^6.26.0",
     "chalk": "^2.4.2",
+    "cliui": "^6.0.0",
     "glob": "^7.1.4",
     "inquirer": "^7.0.0",
-    "keypress": "^0.2.1",
     "leven": "^3.1.0",
+    "minimist": "^1.2.0",
     "ora": "^3.4.0",
     "prettyjson": "^1.2.1",
-    "typescript-tslint-plugin": "^0.5.4"
+    "urllib": "^2.34.2"
   }
 }
